@@ -13,6 +13,7 @@ export interface Job {
   description: string;
   salary_range: string;
   created_at: string;
+  employer_id?: string;
 }
 
 export default function Jobs() {

@@ -219,6 +219,16 @@ export default function Chat() {
 
   const activeProfile = profiles.find(p => p.id === activeChat) || chats.find(c => c.id === activeChat);
 
+  const getAvatar = () => {
+    if (!activeProfile) return `https://picsum.photos/seed/${activeChat}/50/50`;
+    return 'avatar' in activeProfile ? activeProfile.avatar : activeProfile.avatar_url;
+  };
+
+  const getName = () => {
+    if (!activeProfile) return '';
+    return 'name' in activeProfile ? activeProfile.name : activeProfile.full_name;
+  };
+
   return (
     <MainLayout>
       <div className="bg-white min-h-[calc(100vh-3.5rem)] md:min-h-[calc(100vh-5rem)] md:rounded-lg shadow-sm flex overflow-hidden" dir="rtl">
@@ -324,7 +334,7 @@ export default function Chat() {
                   </button>
                   <div className="relative">
                     <img 
-                      src={activeProfile?.avatar || `https://picsum.photos/seed/${activeChat}/50/50`} 
+                      src={getAvatar()} 
                       alt="Avatar" 
                       className="w-10 h-10 rounded-full object-cover"
                       referrerPolicy="no-referrer"
@@ -332,7 +342,7 @@ export default function Chat() {
                   </div>
                   <div className="text-right">
                     <h2 className="font-semibold text-[15px] text-slate-900 leading-tight">
-                      {activeProfile?.name || activeProfile?.full_name}
+                      {getName()}
                     </h2>
                     <p className="text-xs text-slate-500">نشط الآن</p>
                   </div>

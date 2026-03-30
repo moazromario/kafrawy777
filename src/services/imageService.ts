@@ -1,8 +1,20 @@
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+let aiInstance: GoogleGenAI | null = null;
+
+function getAI() {
+  if (!aiInstance) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("مفتاح API الخاص بـ Gemini مفقود. يرجى التأكد من إعداده في إعدادات المنصة.");
+    }
+    aiInstance = new GoogleGenAI({ apiKey });
+  }
+  return aiInstance;
+}
 
 export async function generateIslamicUIImages() {
+  const ai = getAI();
   const prompts = [
     "A premium mobile app UI design for an Islamic application home screen. Clean modern design, emerald green and white color palette, Arabic typography (RTL), featuring cards for Prayer Times, Quran, and Azkar. High resolution, 4k, minimalist aesthetic.",
     "A premium mobile app UI design for a Holy Quran reader screen. Elegant Arabic calligraphy, clean white background with subtle emerald accents, readable typography, verse navigation, and audio player controls. High resolution, 4k, minimalist aesthetic.",
@@ -13,22 +25,29 @@ export async function generateIslamicUIImages() {
 
   const results = [];
   for (const prompt of prompts) {
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
-      contents: {
-        parts: [{ text: prompt }],
-      },
-      config: {
-        imageConfig: {
-          aspectRatio: "9:16",
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash-image',
+        contents: {
+          parts: [{ text: prompt }],
         },
-      },
-    });
+        config: {
+          imageConfig: {
+            aspectRatio: "9:16",
+          },
+        },
+      });
 
-    for (const part of response.candidates[0].content.parts) {
-      if (part.inlineData) {
-        results.push(`data:image/png;base64,${part.inlineData.data}`);
+      if (response.candidates && response.candidates[0]?.content?.parts) {
+        for (const part of response.candidates[0].content.parts) {
+          if (part.inlineData) {
+            results.push(`data:image/png;base64,${part.inlineData.data}`);
+          }
+        }
       }
+    } catch (error) {
+      console.error("Error generating image for prompt:", prompt, error);
+      // Continue to next prompt even if one fails
     }
   }
   return results;
