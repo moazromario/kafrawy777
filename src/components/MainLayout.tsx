@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Users, PlusSquare, Bell, Menu, Search, MessageCircle, Store, Briefcase } from 'lucide-react';
+import { Home, Users, PlusSquare, Bell, Menu, Search, MessageCircle, Store, Briefcase, Moon } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
@@ -25,6 +25,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           <NavTab to="/friends" icon={<Users />} active={location.pathname === '/friends'} />
           <NavTab to="/marketplace" icon={<Store />} active={location.pathname.startsWith('/marketplace')} />
           <NavTab to="/jobs" icon={<Briefcase />} active={location.pathname.startsWith('/jobs')} />
+          <NavTab to="/islamiat" icon={<Moon />} active={location.pathname === '/islamiat'} />
         </div>
 
         <div className="flex items-center gap-2">
@@ -47,8 +48,10 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       </header>
 
       {/* Main Content */}
-      <main className="pt-14 md:pt-6 max-w-2xl mx-auto w-full">
-        {children}
+      <main className="pt-14 md:pt-6 mx-auto w-full">
+        <div className={`${location.pathname === '/profile' ? 'max-w-6xl' : 'max-w-2xl'} mx-auto w-full px-0 md:px-4`}>
+          {children}
+        </div>
       </main>
 
       {/* Bottom Navigation (Mobile) */}
@@ -56,7 +59,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         <NavItem to="/feed" icon={<Home />} active={location.pathname === '/feed'} />
         <NavItem to="/friends" icon={<Users />} active={location.pathname === '/friends'} />
         <NavItem to="/marketplace" icon={<Store />} active={location.pathname.startsWith('/marketplace')} />
-        <NavItem to="/jobs" icon={<Briefcase />} active={location.pathname.startsWith('/jobs')} />
+        <NavItem to="/islamiat" icon={<Moon />} active={location.pathname === '/islamiat'} />
         <NavItem to="/profile" icon={<Menu />} active={location.pathname === '/profile'} />
       </nav>
     </div>
@@ -71,7 +74,7 @@ function NavTab({ to, icon, active }: { to: string, icon: React.ReactNode, activ
         active ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:bg-slate-50 rounded-lg my-1'
       }`}
     >
-      {React.cloneElement(icon as React.ReactElement, { className: `w-6 h-6 ${active ? 'fill-blue-600' : ''}` })}
+      {React.cloneElement(icon as React.ReactElement<any>, { className: `w-6 h-6 ${active ? 'fill-blue-600' : ''}` })}
     </Link>
   );
 }
@@ -79,7 +82,7 @@ function NavTab({ to, icon, active }: { to: string, icon: React.ReactNode, activ
 function NavItem({ to, icon, active }: { to: string, icon: React.ReactNode, active: boolean }) {
   return (
     <Link to={to} className={`flex flex-col items-center justify-center w-full h-full ${active ? 'text-blue-600' : 'text-slate-500 hover:bg-slate-50'}`}>
-      {React.cloneElement(icon as React.ReactElement, { className: `w-7 h-7 ${active ? 'fill-blue-100' : ''}` })}
+      {React.cloneElement(icon as React.ReactElement<any>, { className: `w-7 h-7 ${active ? 'fill-blue-100' : ''}` })}
     </Link>
   );
 }

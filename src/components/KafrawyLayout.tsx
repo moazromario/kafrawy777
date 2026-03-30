@@ -12,7 +12,7 @@ export default function KafrawyLayout({ children }: { children: React.ReactNode 
         active ? 'text-blue-600' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
       }`}
     >
-      {React.cloneElement(icon as React.ReactElement, { 
+      {React.cloneElement(icon as React.ReactElement<any>, { 
         className: `w-6 h-6 ${active ? 'fill-blue-600/20' : ''}` 
       })}
       <span className="text-[10px] font-medium">{label}</span>
@@ -27,7 +27,7 @@ export default function KafrawyLayout({ children }: { children: React.ReactNode 
         active ? 'text-blue-600' : 'text-slate-500 hover:bg-slate-100'
       }`}
     >
-      {React.cloneElement(icon as React.ReactElement, { 
+      {React.cloneElement(icon as React.ReactElement<any>, { 
         className: `w-7 h-7 ${active ? 'fill-blue-600/20' : ''}` 
       })}
       {active && <div className="absolute bottom-0 w-full h-1 bg-blue-600 rounded-t-full" />}

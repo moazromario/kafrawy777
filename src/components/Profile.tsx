@@ -5,7 +5,8 @@ import PostCard from './PostCard';
 import { 
   Camera, Edit2, MoreHorizontal, PlusSquare, FileText, Upload, 
   Loader2, CheckCircle2, MapPin, GraduationCap, Calendar, 
-  Users, Briefcase, ShoppingBag, Grid, X, Save, LogOut
+  Users, Briefcase, ShoppingBag, Grid, X, Save, LogOut, Info,
+  List, Heart, MessageCircle, Search, Filter
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -24,6 +25,7 @@ export default function Profile() {
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
   const [activeTab, setActiveTab] = useState<'posts' | 'friends' | 'products' | 'jobs'>('posts');
+  const [postViewMode, setPostViewMode] = useState<'grid' | 'list'>('grid');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   
   // Tab data
@@ -144,105 +146,110 @@ export default function Profile() {
 
   return (
     <MainLayout>
-      <div className="max-w-5xl mx-auto px-0 md:px-4 py-0 md:py-6" dir="rtl">
+      <div className="w-full pb-20 md:pb-10" dir="rtl">
         {/* Profile Header Card */}
-        <div className="bg-white shadow-sm md:rounded-2xl overflow-hidden mb-6 border-b md:border border-slate-200">
+        <div className="bg-white shadow-sm md:rounded-3xl overflow-hidden mb-6 border-b md:border border-slate-200">
           {/* Cover Photo */}
-          <div className="relative h-48 md:h-80 bg-slate-100 group">
+          <div className="relative h-48 md:h-[350px] bg-slate-200 group">
             <img 
-              src={profile?.cover_url || "https://picsum.photos/seed/cover/1200/400"} 
+              src={profile?.cover_url || "https://picsum.photos/seed/cover/1920/600"} 
               alt="Cover" 
               className="w-full h-full object-cover" 
               referrerPolicy="no-referrer" 
             />
-            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <label className="cursor-pointer bg-white/90 hover:bg-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-bold text-slate-900 transition-all transform scale-90 group-hover:scale-100">
+            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center backdrop-blur-[2px]">
+              <label className="cursor-pointer bg-white/90 hover:bg-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 text-sm font-black text-slate-900 transition-all transform scale-90 group-hover:scale-100 hover:scale-105 active:scale-95">
                 <Camera className="w-5 h-5" />
-                تغيير الغلاف
+                تغيير غلاف الصفحة
                 <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'cover')} />
               </label>
             </div>
           </div>
 
           {/* Profile Info Section */}
-          <div className="px-4 md:px-8 pb-6 relative">
-            <div className="flex flex-col md:flex-row md:items-end gap-6 -mt-16 md:-mt-20 mb-6">
-              {/* Avatar */}
-              <div className="relative w-32 h-32 md:w-44 md:h-44 rounded-full border-4 border-white bg-white overflow-hidden shadow-xl mx-auto md:mx-0 group">
+          <div className="px-4 md:px-10 pb-8 relative">
+            <div className="flex flex-col md:flex-row md:items-end gap-6 -mt-16 md:-mt-24 mb-8">
+              {/* Avatar Container */}
+              <div className="relative w-32 h-32 md:w-48 md:h-48 rounded-full border-[6px] border-white bg-slate-100 overflow-hidden shadow-2xl mx-auto md:mx-0 group ring-1 ring-slate-200">
                 <img 
-                  src={profile?.avatar_url || "https://picsum.photos/seed/user/200/200"} 
+                  src={profile?.avatar_url || "https://picsum.photos/seed/avatar/400/400"} 
                   alt="Profile" 
                   className="w-full h-full object-cover" 
                   referrerPolicy="no-referrer" 
                 />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <label className="cursor-pointer p-3 bg-white/20 hover:bg-white/40 rounded-full text-white transition-colors">
-                    <Camera className="w-6 h-6" />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                  <label className="cursor-pointer p-4 bg-white/20 hover:bg-white/40 rounded-full text-white transition-all transform scale-90 group-hover:scale-100 hover:scale-110 active:scale-90">
+                    <Camera className="w-7 h-7" />
                     <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'avatar')} />
                   </label>
                 </div>
               </div>
 
-              {/* Name & Bio */}
+              {/* Name & Bio & Stats */}
               <div className="flex-1 text-center md:text-right">
-                <h1 className="text-3xl font-black text-slate-900 mb-1">{profile?.full_name}</h1>
-                <p className="text-slate-600 text-lg max-w-2xl mx-auto md:mx-0 leading-relaxed">
-                  {profile?.bio || "لا يوجد نبذة شخصية بعد. أضف نبذة لتعريف الناس بك."}
-                </p>
-                <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-4 text-sm text-slate-500 font-medium">
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className="w-4 h-4" />
-                    انضم في {new Date(profile?.created_at).toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' })}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                  <div>
+                    <h1 className="text-3xl md:text-4xl font-black text-slate-900 mb-2 tracking-tight">{profile?.full_name}</h1>
+                    <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-slate-500 font-bold">
+                      <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
+                        <Calendar className="w-4 h-4 text-blue-600" />
+                        انضم {new Date(profile?.created_at).toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' })}
+                      </div>
+                      <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
+                        <MapPin className="w-4 h-4 text-red-500" />
+                        القاهرة، مصر
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <MapPin className="w-4 h-4" />
-                    القاهرة، مصر
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-3 w-full md:w-auto">
+                    <button 
+                      onClick={() => setIsEditModalOpen(true)}
+                      className="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-2xl font-black flex items-center justify-center gap-2 shadow-xl shadow-blue-200 transition-all active:scale-95 hover:-translate-y-0.5"
+                    >
+                      <Edit2 className="w-5 h-5" />
+                      تعديل الملف
+                    </button>
+                    <button 
+                      onClick={handleLogout}
+                      className="flex-1 md:flex-none bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-3 rounded-2xl font-black flex items-center justify-center gap-2 transition-all active:scale-95"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      خروج
+                    </button>
                   </div>
                 </div>
-              </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                <button 
-                  onClick={() => setIsEditModalOpen(true)}
-                  className="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 shadow-md shadow-blue-200 transition-all active:scale-95"
-                >
-                  <Edit2 className="w-5 h-5" />
-                  تعديل الملف
-                </button>
-                <button 
-                  onClick={handleLogout}
-                  className="flex-1 md:flex-none bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95"
-                >
-                  <LogOut className="w-5 h-5" />
-                  تسجيل الخروج
-                </button>
+                <p className="text-slate-600 text-lg max-w-3xl leading-relaxed font-medium">
+                  {profile?.bio || "لا يوجد نبذة شخصية بعد. أضف نبذة لتعريف الناس بك وبمهاراتك."}
+                </p>
               </div>
             </div>
 
             {/* Stats Bar */}
-            <div className="flex border-t border-slate-100 pt-6 gap-8 md:gap-12 overflow-x-auto hide-scrollbar">
-              <div className="text-center">
-                <p className="text-xl font-black text-slate-900">{userPosts?.length || 0}</p>
-                <p className="text-sm text-slate-500 font-bold">منشور</p>
+            <div className="flex border-t border-slate-100 pt-8 gap-8 md:gap-16 overflow-x-auto hide-scrollbar">
+              <div className="text-center group cursor-pointer">
+                <p className="text-2xl font-black text-slate-900 group-hover:text-blue-600 transition-colors">{userPosts?.length || 0}</p>
+                <p className="text-xs text-slate-400 font-black uppercase tracking-wider">منشور</p>
               </div>
-              <div className="text-center">
-                <p className="text-xl font-black text-slate-900">{userFriends?.length || 0}</p>
-                <p className="text-sm text-slate-500 font-bold">صديق</p>
+              <div className="text-center group cursor-pointer">
+                <p className="text-2xl font-black text-slate-900 group-hover:text-blue-600 transition-colors">{userFriends?.length || 0}</p>
+                <p className="text-xs text-slate-400 font-black uppercase tracking-wider">صديق</p>
               </div>
-              <div className="text-center">
-                <p className="text-xl font-black text-slate-900">{userProducts?.length || 0}</p>
-                <p className="text-sm text-slate-500 font-bold">منتج</p>
+              <div className="text-center group cursor-pointer">
+                <p className="text-2xl font-black text-slate-900 group-hover:text-blue-600 transition-colors">{userProducts?.length || 0}</p>
+                <p className="text-xs text-slate-400 font-black uppercase tracking-wider">منتج</p>
               </div>
-              <div className="text-center">
-                <p className="text-xl font-black text-slate-900">{userJobs?.length || 0}</p>
-                <p className="text-sm text-slate-500 font-bold">وظيفة</p>
+              <div className="text-center group cursor-pointer">
+                <p className="text-2xl font-black text-slate-900 group-hover:text-blue-600 transition-colors">{userJobs?.length || 0}</p>
+                <p className="text-xs text-slate-400 font-black uppercase tracking-wider">وظيفة</p>
               </div>
             </div>
           </div>
 
           {/* Tabs Navigation */}
-          <div className="px-4 md:px-8 border-t border-slate-100 bg-slate-50/50 flex gap-2">
+          <div className="px-4 md:px-10 border-t border-slate-100 bg-slate-50/30 flex gap-1 md:gap-4 overflow-x-auto hide-scrollbar">
             {[
               { id: 'posts', label: 'المنشورات', icon: Grid },
               { id: 'friends', label: 'الأصدقاء', icon: Users },
@@ -252,84 +259,99 @@ export default function Profile() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 py-4 px-4 font-bold text-sm transition-all border-b-2 ${
+                className={`flex items-center gap-2 py-5 px-6 font-black text-sm transition-all border-b-4 whitespace-nowrap ${
                   activeTab === tab.id 
                     ? 'text-blue-600 border-blue-600 bg-blue-50/50' 
-                    : 'text-slate-500 border-transparent hover:text-slate-700 hover:bg-slate-100'
+                    : 'text-slate-500 border-transparent hover:text-slate-900 hover:bg-slate-100'
                 }`}
               >
-                <tab.icon className="w-4 h-4" />
+                <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? 'fill-blue-100' : ''}`} />
                 {tab.label}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Main Content Area */}
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Sidebar - Info & CV */}
-          <div className="w-full lg:w-1/3 space-y-6">
+        {/* Main Content Area - Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Sidebar - Left Column (Desktop) */}
+          <div className="lg:col-span-4 space-y-8">
             {/* About Card */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-              <h2 className="font-black text-lg mb-5 text-slate-900 flex items-center gap-2">
-                <Edit2 className="w-5 h-5 text-blue-600" />
-                نبذة شخصية
+            <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200">
+              <h2 className="font-black text-xl mb-6 text-slate-900 flex items-center gap-3">
+                <Info className="w-6 h-6 text-blue-600" />
+                المعلومات الشخصية
               </h2>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 text-slate-700">
-                  <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
-                    <GraduationCap className="w-5 h-5" />
+              <div className="space-y-5">
+                <div className="flex items-center gap-4 text-slate-700 p-3 rounded-2xl hover:bg-slate-50 transition-colors">
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+                    <GraduationCap className="w-6 h-6" />
                   </div>
-                  <p className="text-sm font-medium">درس في <span className="font-bold">جامعة التكنولوجيا</span></p>
+                  <div>
+                    <p className="text-xs text-slate-400 font-bold uppercase">التعليم</p>
+                    <p className="text-sm font-black">جامعة التكنولوجيا والعلوم</p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3 text-slate-700">
-                  <div className="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center text-green-600">
-                    <MapPin className="w-5 h-5" />
+                <div className="flex items-center gap-4 text-slate-700 p-3 rounded-2xl hover:bg-slate-50 transition-colors">
+                  <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center text-red-600 shrink-0">
+                    <MapPin className="w-6 h-6" />
                   </div>
-                  <p className="text-sm font-medium">يقيم في <span className="font-bold">القاهرة، مصر</span></p>
+                  <div>
+                    <p className="text-xs text-slate-400 font-bold uppercase">الموقع</p>
+                    <p className="text-sm font-black">القاهرة، مصر</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 text-slate-700 p-3 rounded-2xl hover:bg-slate-50 transition-colors">
+                  <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center text-green-600 shrink-0">
+                    <Briefcase className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-400 font-bold uppercase">العمل</p>
+                    <p className="text-sm font-black">مطور واجهات أمامية</p>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* CV Card */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-              <h2 className="font-black text-lg mb-5 text-slate-900 flex items-center gap-2">
-                <FileText className="w-5 h-5 text-blue-600" />
+            <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200">
+              <h2 className="font-black text-xl mb-6 text-slate-900 flex items-center gap-3">
+                <FileText className="w-6 h-6 text-blue-600" />
                 السيرة الذاتية
               </h2>
               {profile?.cv_url ? (
-                <div className="group relative overflow-hidden rounded-xl border border-blue-100 bg-blue-50/50 p-4 transition-all hover:shadow-md">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-200">
-                      <FileText className="w-6 h-6" />
+                <div className="group relative overflow-hidden rounded-2xl border-2 border-blue-100 bg-blue-50/30 p-6 transition-all hover:shadow-xl hover:shadow-blue-100">
+                  <div className="flex items-center gap-5">
+                    <div className="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-2xl shadow-blue-200">
+                      <FileText className="w-8 h-8" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-bold text-blue-900 text-sm">السيرة الذاتية جاهزة</p>
-                      <a 
-                        href={profile.cv_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-blue-600 text-xs font-bold hover:underline inline-flex items-center gap-1 mt-1"
-                      >
-                        عرض الملف
-                        <X className="w-3 h-3 rotate-45" />
-                      </a>
+                      <p className="font-black text-blue-900 text-lg">CV جاهز للإرسال</p>
+                      <div className="flex gap-4 mt-2">
+                        <a 
+                          href={profile.cv_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-600 text-sm font-black hover:underline inline-flex items-center gap-1"
+                        >
+                          عرض الملف
+                        </a>
+                        <label className="text-slate-500 text-sm font-black hover:text-blue-600 cursor-pointer transition-colors">
+                          تحديث
+                          <input type="file" className="hidden" accept=".pdf,.doc,.docx" onChange={(e) => handleFileUpload(e, 'cv')} disabled={uploading} />
+                        </label>
+                      </div>
                     </div>
                   </div>
-                  <label className="mt-4 w-full flex items-center justify-center gap-2 py-2 bg-white border border-blue-200 rounded-lg text-blue-600 text-sm font-bold cursor-pointer hover:bg-blue-50 transition-colors">
-                    <Upload className="w-4 h-4" />
-                    تحديث الملف
-                    <input type="file" className="hidden" accept=".pdf,.doc,.docx" onChange={(e) => handleFileUpload(e, 'cv')} disabled={uploading} />
-                  </label>
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 text-center">
-                  <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-4">
-                    <FileText className="w-8 h-8" />
+                <div className="flex flex-col items-center justify-center p-10 border-2 border-dashed border-slate-200 rounded-[2rem] bg-slate-50 text-center group hover:border-blue-400 transition-colors">
+                  <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center text-slate-300 mb-6 shadow-sm group-hover:text-blue-400 transition-colors">
+                    <FileText className="w-10 h-10" />
                   </div>
-                  <p className="text-slate-500 text-sm font-bold mb-4">لم ترفع سيرتك الذاتية بعد</p>
-                  <label className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold cursor-pointer transition-all shadow-lg shadow-blue-100 flex items-center gap-2 active:scale-95">
-                    {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                  <p className="text-slate-500 font-black mb-6">ارفع سيرتك الذاتية لزيادة فرص توظيفك</p>
+                  <label className="w-full bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-black cursor-pointer transition-all shadow-xl shadow-blue-200 flex items-center justify-center gap-3 active:scale-95">
+                    {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Upload className="w-5 h-5" />}
                     رفع السيرة الذاتية
                     <input type="file" className="hidden" accept=".pdf,.doc,.docx" onChange={(e) => handleFileUpload(e, 'cv')} disabled={uploading} />
                   </label>
@@ -342,11 +364,11 @@ export default function Profile() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
-                    className={`mt-4 flex items-center gap-2 text-sm p-3 rounded-xl font-bold ${
+                    className={`mt-6 flex items-center gap-3 p-4 rounded-2xl font-black text-sm shadow-sm ${
                       message.type === 'error' ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-green-50 text-green-600 border border-green-100'
                     }`}
                   >
-                    {message.type === 'error' ? <X className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
+                    {message.type === 'error' ? <X className="w-5 h-5" /> : <CheckCircle2 className="w-5 h-5" />}
                     {message.text}
                   </motion.div>
                 )}
@@ -354,114 +376,253 @@ export default function Profile() {
             </div>
           </div>
 
-          {/* Content Area */}
-          <div className="w-full lg:w-2/3">
+          {/* Main Content - Right Column (Desktop) */}
+          <div className="lg:col-span-8">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.2 }}
-                className="space-y-4"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="space-y-6"
               >
                 {activeTab === 'posts' && (
-                  <>
+                  <div className="space-y-8">
+                    {/* Create Post Entry */}
+                    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm flex items-center gap-6 hover:shadow-xl hover:shadow-slate-100 transition-all group">
+                      <div className="relative">
+                        <img 
+                          src={profile?.avatar_url || "https://picsum.photos/seed/user/100/100"} 
+                          className="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-md" 
+                          alt="" 
+                          referrerPolicy="no-referrer"
+                        />
+                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                      </div>
+                      <button 
+                        onClick={() => navigate('/community')}
+                        className="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-500 text-right px-8 py-4 rounded-2xl font-black transition-all border border-slate-100 group-hover:border-blue-100"
+                      >
+                        بماذا تفكر يا {profile?.full_name?.split(' ')[0]}؟
+                      </button>
+                      <button className="p-4 text-blue-600 hover:bg-blue-50 rounded-2xl transition-all active:scale-90">
+                        <Camera className="w-7 h-7" />
+                      </button>
+                    </div>
+
+                    {/* View Toggle & Header */}
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-8 bg-blue-600 rounded-full"></div>
+                        <h3 className="text-2xl font-black text-slate-900 tracking-tight">المنشورات</h3>
+                      </div>
+                      
+                      <div className="flex items-center gap-4">
+                        <div className="relative flex-1 md:w-64">
+                          <input 
+                            type="text" 
+                            placeholder="بحث..." 
+                            className="w-full bg-slate-100 border-none rounded-xl px-10 py-2.5 focus:ring-2 focus:ring-blue-500/20 transition-all font-bold text-sm"
+                          />
+                          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        </div>
+
+                        <button className="p-2.5 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all text-slate-600 border border-slate-200">
+                          <Filter className="w-5 h-5" />
+                        </button>
+
+                        <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
+                          <button 
+                            onClick={() => setPostViewMode('grid')}
+                            className={`p-2 rounded-lg transition-all ${postViewMode === 'grid' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
+                          >
+                            <Grid className="w-5 h-5" />
+                          </button>
+                          <button 
+                            onClick={() => setPostViewMode('list')}
+                            className={`p-2 rounded-lg transition-all ${postViewMode === 'list' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
+                          >
+                            <List className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
                     {(userPosts?.length || 0) > 0 ? (
-                      userPosts.map(post => (
-                        <PostCard key={post.id} post={post} />
-                      ))
+                      postViewMode === 'list' ? (
+                        <div className="space-y-8">
+                          {userPosts.map(post => (
+                            <PostCard key={post.id} post={post} />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
+                          {userPosts.map(post => (
+                            <div 
+                              key={post.id} 
+                              className="aspect-square relative group cursor-pointer overflow-hidden rounded-[2.5rem] bg-slate-100 border border-slate-200 shadow-sm hover:shadow-2xl hover:shadow-slate-200 transition-all duration-500"
+                            >
+                              {post.image ? (
+                                <img 
+                                  src={post.image} 
+                                  alt="" 
+                                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                                  referrerPolicy="no-referrer"
+                                />
+                              ) : (
+                                <div className="w-full h-full p-8 flex items-center justify-center text-center text-slate-400 bg-gradient-to-br from-slate-50 to-slate-100">
+                                  <p className="text-sm font-black line-clamp-5 leading-relaxed text-slate-600">{post.content}</p>
+                                </div>
+                              )}
+                              {/* Overlay on hover */}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center gap-8 text-white backdrop-blur-[4px]">
+                                <div className="flex flex-col items-center gap-2 transform translate-y-8 group-hover:translate-y-0 transition-all duration-500 ease-out">
+                                  <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center mb-1">
+                                    <Heart className="w-6 h-6 fill-white" />
+                                  </div>
+                                  <span className="font-black text-xl">{post.likes || 0}</span>
+                                </div>
+                                <div className="flex flex-col items-center gap-2 transform translate-y-8 group-hover:translate-y-0 transition-all duration-500 ease-out delay-75">
+                                  <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center mb-1">
+                                    <MessageCircle className="w-6 h-6 fill-white" />
+                                  </div>
+                                  <span className="font-black text-xl">{post.comments?.length || 0}</span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )
                     ) : (
-                      <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center">
-                        <PlusSquare className="w-16 h-16 text-slate-200 mx-auto mb-4" />
-                        <h3 className="text-xl font-bold text-slate-900 mb-2">لا توجد منشورات</h3>
-                        <p className="text-slate-500">ابدأ بمشاركة أفكارك مع المجتمع</p>
+                      <div className="bg-white p-24 rounded-[3rem] border border-slate-200 text-center shadow-sm">
+                        <div className="w-32 h-32 bg-slate-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 rotate-12 group-hover:rotate-0 transition-transform duration-500">
+                          <PlusSquare className="w-16 h-16 text-slate-200" />
+                        </div>
+                        <h3 className="text-3xl font-black text-slate-900 mb-4">لا توجد منشورات</h3>
+                        <p className="text-slate-500 text-lg font-bold max-w-md mx-auto leading-relaxed">شارك أول منشور لك الآن ودع العالم يراك ويتفاعل مع إبداعاتك</p>
+                        <button 
+                          onClick={() => navigate('/community')}
+                          className="mt-8 bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-2xl font-black shadow-xl shadow-blue-200 transition-all active:scale-95"
+                        >
+                          أنشئ منشورك الأول
+                        </button>
                       </div>
                     )}
-                  </>
+                  </div>
                 )}
 
                 {activeTab === 'friends' && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {(userFriends?.length || 0) > 0 ? (
                       userFriends.map(friendship => {
                         const friend = friendship.user_id === user?.id ? friendship.friend : friendship.user;
                         return (
-                          <div key={friendship.id} className="bg-white p-4 rounded-xl border border-slate-200 flex items-center gap-4 hover:shadow-md transition-shadow">
-                            <img src={friend?.avatar_url || "https://picsum.photos/seed/user/100/100"} className="w-14 h-14 rounded-full object-cover" alt={friend?.full_name} />
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-bold text-slate-900 truncate">{friend?.full_name}</h4>
-                              <p className="text-xs text-slate-500 truncate">{friend?.bio || 'لا يوجد نبذة'}</p>
+                          <div key={friendship.id} className="bg-white p-6 rounded-3xl border border-slate-200 flex items-center gap-5 hover:shadow-xl hover:shadow-slate-100 transition-all group">
+                            <div className="relative">
+                              <img 
+                                src={friend?.avatar_url || "https://picsum.photos/seed/user/100/100"} 
+                                className="w-16 h-16 rounded-2xl object-cover border border-slate-100 shadow-sm" 
+                                alt={friend?.full_name} 
+                                referrerPolicy="no-referrer"
+                              />
+                              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
                             </div>
-                            <button className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                              <MoreHorizontal className="w-5 h-5" />
+                            <div className="flex-1 min-w-0 text-right">
+                              <h4 className="font-black text-slate-900 truncate text-lg group-hover:text-blue-600 transition-colors">{friend?.full_name}</h4>
+                              <p className="text-sm text-slate-500 truncate font-medium">{friend?.bio || 'لا يوجد نبذة'}</p>
+                            </div>
+                            <button className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all">
+                              <MoreHorizontal className="w-6 h-6" />
                             </button>
                           </div>
                         );
                       })
                     ) : (
-                      <div className="col-span-full bg-white p-12 rounded-2xl border border-slate-200 text-center">
-                        <Users className="w-16 h-16 text-slate-200 mx-auto mb-4" />
-                        <h3 className="text-xl font-bold text-slate-900 mb-2">لا يوجد أصدقاء بعد</h3>
-                        <p className="text-slate-500">تواصل مع الآخرين لبناء مجتمعك</p>
+                      <div className="col-span-full bg-white p-20 rounded-[2.5rem] border border-slate-200 text-center shadow-sm">
+                        <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                          <Users className="w-12 h-12 text-slate-200" />
+                        </div>
+                        <h3 className="text-2xl font-black text-slate-900 mb-2">قائمة الأصدقاء فارغة</h3>
+                        <p className="text-slate-500 font-medium">ابدأ بتكوين صداقات جديدة في مجتمع كفراوي</p>
                       </div>
                     )}
                   </div>
                 )}
 
                 {activeTab === 'products' && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {(userProducts?.length || 0) > 0 ? (
                       userProducts.map(product => (
-                        <div key={product.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-md transition-shadow group">
-                          <div className="h-40 bg-slate-100 overflow-hidden">
-                            <img src={product.image_url || "https://picsum.photos/seed/product/400/300"} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={product.title} />
+                        <div key={product.id} className="bg-white rounded-[2rem] border border-slate-200 overflow-hidden hover:shadow-2xl hover:shadow-slate-200 transition-all group cursor-pointer">
+                          <div className="h-56 bg-slate-100 overflow-hidden relative">
+                            <img 
+                              src={product.image_url || "https://picsum.photos/seed/product/600/400"} 
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                              alt={product.title} 
+                              referrerPolicy="no-referrer"
+                            />
+                            <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur px-4 py-2 rounded-2xl font-black text-blue-600 shadow-xl">
+                              {product.price} ج.م
+                            </div>
                           </div>
-                          <div className="p-4">
-                            <h4 className="font-bold text-slate-900 mb-1">{product.title}</h4>
-                            <p className="text-blue-600 font-black text-lg">{product.price} ج.م</p>
+                          <div className="p-6">
+                            <h4 className="font-black text-slate-900 text-xl mb-2 group-hover:text-blue-600 transition-colors">{product.title}</h4>
+                            <div className="flex items-center gap-2 text-slate-500 text-sm font-bold">
+                              <MapPin className="w-4 h-4" />
+                              {product.location}
+                            </div>
                           </div>
                         </div>
                       ))
                     ) : (
-                      <div className="col-span-full bg-white p-12 rounded-2xl border border-slate-200 text-center">
-                        <ShoppingBag className="w-16 h-16 text-slate-200 mx-auto mb-4" />
-                        <h3 className="text-xl font-bold text-slate-900 mb-2">لا توجد منتجات</h3>
-                        <p className="text-slate-500">اعرض منتجاتك للبيع في السوق</p>
+                      <div className="col-span-full bg-white p-20 rounded-[2.5rem] border border-slate-200 text-center shadow-sm">
+                        <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                          <ShoppingBag className="w-12 h-12 text-slate-200" />
+                        </div>
+                        <h3 className="text-2xl font-black text-slate-900 mb-2">لا توجد منتجات معروضة</h3>
+                        <p className="text-slate-500 font-medium">حول أغراضك القديمة إلى نقود، اعرضها الآن في السوق</p>
                       </div>
                     )}
                   </div>
                 )}
 
                 {activeTab === 'jobs' && (
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {(userJobs?.length || 0) > 0 ? (
                       userJobs.map(job => (
-                        <div key={job.id} className="bg-white p-5 rounded-xl border border-slate-200 hover:shadow-md transition-shadow">
-                          <div className="flex justify-between items-start mb-3">
-                            <div>
-                              <h4 className="font-bold text-lg text-slate-900">{job.title}</h4>
-                              <p className="text-blue-600 font-bold text-sm">{job.company}</p>
+                        <div key={job.id} className="bg-white p-8 rounded-[2rem] border border-slate-200 hover:shadow-xl hover:shadow-blue-50 transition-all group cursor-pointer">
+                          <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
+                            <div className="flex items-center gap-5">
+                              <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+                                <Briefcase className="w-8 h-8" />
+                              </div>
+                              <div>
+                                <h4 className="font-black text-xl text-slate-900 group-hover:text-blue-600 transition-colors">{job.title}</h4>
+                                <p className="text-blue-600 font-black text-base">{job.company}</p>
+                              </div>
                             </div>
-                            <span className="bg-blue-50 text-blue-600 text-xs font-bold px-3 py-1 rounded-full">{job.type}</span>
+                            <span className="bg-blue-50 text-blue-600 text-xs font-black px-5 py-2 rounded-full uppercase tracking-widest">{job.type}</span>
                           </div>
-                          <div className="flex items-center gap-4 text-xs text-slate-500 font-medium">
-                            <div className="flex items-center gap-1">
-                              <MapPin className="w-3.5 h-3.5" />
+                          <div className="flex flex-wrap items-center gap-6 text-sm text-slate-500 font-bold border-t border-slate-50 pt-6">
+                            <div className="flex items-center gap-2">
+                              <MapPin className="w-5 h-5 text-red-500" />
                               {job.location}
                             </div>
-                            <div className="flex items-center gap-1">
-                              <Calendar className="w-3.5 h-3.5" />
-                              {new Date(job.created_at).toLocaleDateString('ar-EG')}
+                            <div className="flex items-center gap-2">
+                              <Calendar className="w-5 h-5 text-blue-500" />
+                              نشر في {new Date(job.created_at).toLocaleDateString('ar-EG')}
                             </div>
                           </div>
                         </div>
                       ))
                     ) : (
-                      <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center">
-                        <Briefcase className="w-16 h-16 text-slate-200 mx-auto mb-4" />
-                        <h3 className="text-xl font-bold text-slate-900 mb-2">لا توجد وظائف معلنة</h3>
-                        <p className="text-slate-500">أعلن عن وظائف شاغرة لجذب المواهب</p>
+                      <div className="bg-white p-20 rounded-[2.5rem] border border-slate-200 text-center shadow-sm">
+                        <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                          <Briefcase className="w-12 h-12 text-slate-200" />
+                        </div>
+                        <h3 className="text-2xl font-black text-slate-900 mb-2">لم تنشر أي وظائف</h3>
+                        <p className="text-slate-500 font-medium">هل تبحث عن موظفين؟ ابدأ بنشر إعلان وظيفي الآن</p>
                       </div>
                     )}
                   </div>
