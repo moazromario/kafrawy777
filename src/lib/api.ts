@@ -447,3 +447,51 @@ export async function updateProfile(userId: string, profileData: any) {
   if (error) throw error;
   return data;
 }
+
+export async function fetchUserPosts(userId: string) {
+  const { data, error } = await supabase
+    .from('posts')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function fetchUserProducts(userId: string) {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('seller_id', userId)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function fetchUserJobs(userId: string) {
+  const { data, error } = await supabase
+    .from('jobs')
+    .select('*')
+    .eq('employer_id', userId)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function fetchUserFriends(userId: string) {
+  const { data, error } = await supabase
+    .from('friendships')
+    .select(`
+      *,
+      user:user_id(id, full_name, avatar_url, bio),
+      friend:friend_id(id, full_name, avatar_url, bio)
+    `)
+    .or(`user_id.eq.${userId},friend_id.eq.${userId}`)
+    .eq('status', 'accepted');
+
+  if (error) throw error;
+  return data;
+}
