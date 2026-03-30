@@ -42,9 +42,9 @@ export default function Friends() {
     return friendship;
   };
 
-  const acceptedFriends = friendships.filter(f => f.status === 'accepted');
-  const pendingRequests = friendships.filter(f => f.status === 'pending' && f.friend_id === user?.id);
-  const sentRequests = friendships.filter(f => f.status === 'pending' && f.user_id === user?.id);
+  const acceptedFriends = (friendships || []).filter(f => f.status === 'accepted');
+  const pendingRequests = (friendships || []).filter(f => f.status === 'pending' && f.friend_id === user?.id);
+  const sentRequests = (friendships || []).filter(f => f.status === 'pending' && f.user_id === user?.id);
 
   return (
     <MainLayout>
@@ -59,13 +59,13 @@ export default function Friends() {
             onClick={() => setActiveTab('friends')}
             className={`flex-1 py-3 text-sm font-bold transition-colors border-b-2 ${activeTab === 'friends' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:bg-slate-50'}`}
           >
-            أصدقائي ({acceptedFriends.length})
+            أصدقائي ({acceptedFriends?.length || 0})
           </button>
           <button 
             onClick={() => setActiveTab('requests')}
             className={`flex-1 py-3 text-sm font-bold transition-colors border-b-2 ${activeTab === 'requests' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:bg-slate-50'}`}
           >
-            الطلبات ({pendingRequests.length})
+            الطلبات ({pendingRequests?.length || 0})
           </button>
           <button 
             onClick={() => setActiveTab('discover')}
@@ -93,7 +93,7 @@ export default function Friends() {
                 <div className="flex justify-center p-4">
                   <Loader2 className="animate-spin text-blue-600" />
                 </div>
-              ) : searchResults.length > 0 ? (
+              ) : (searchResults?.length || 0) > 0 ? (
                 searchResults.map(profile => (
                   <ProfileCard 
                     key={profile.id} 
@@ -105,7 +105,7 @@ export default function Friends() {
                     currentUserId={user?.id || ''}
                   />
                 ))
-              ) : searchQuery.length > 1 ? (
+              ) : (searchQuery?.length || 0) > 1 ? (
                 <p className="text-center text-slate-500 py-4">لم يتم العثور على نتائج</p>
               ) : (
                 <p className="text-center text-slate-500 py-4 italic">ابدأ البحث للعثور على أصدقاء جدد</p>
@@ -116,7 +116,7 @@ export default function Friends() {
 
         {activeTab === 'friends' && (
           <div className="space-y-3">
-            {acceptedFriends.length > 0 ? (
+            {(acceptedFriends?.length || 0) > 0 ? (
               acceptedFriends.map(f => {
                 const friendProfile = f.user_id === user?.id ? f.friend : f.user;
                 if (!friendProfile) return null;
@@ -143,7 +143,7 @@ export default function Friends() {
           <div className="space-y-6">
             <div>
               <h3 className="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider">طلبات واردة</h3>
-              {pendingRequests.length > 0 ? (
+              {(pendingRequests?.length || 0) > 0 ? (
                 pendingRequests.map(f => (
                   <ProfileCard 
                     key={f.id} 
@@ -161,7 +161,7 @@ export default function Friends() {
 
             <div className="pt-4 border-t border-slate-100">
               <h3 className="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider">طلبات مرسلة</h3>
-              {sentRequests.length > 0 ? (
+              {(sentRequests?.length || 0) > 0 ? (
                 sentRequests.map(f => (
                   <ProfileCard 
                     key={f.id} 

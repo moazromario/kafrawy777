@@ -127,7 +127,7 @@ export default function Jobs() {
                 </div>
               ))}
               
-              {filteredJobs.length === 0 && (
+              {(filteredJobs?.length || 0) === 0 && (
                 <div className="text-center text-slate-500 py-12">
                   لا توجد وظائف مطابقة لبحثك.
                 </div>

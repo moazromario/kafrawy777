@@ -22,14 +22,14 @@ export default function StoryViewer({ stories, initialStoryIndex, onClose }: Sto
   const duration = 5000; // 5 seconds per story
 
   const nextStory = useCallback(() => {
-    if (currentIndex < stories.length - 1) {
+    if (currentIndex < (stories?.length || 0) - 1) {
       setCurrentIndex(prev => prev + 1);
       setProgress(0);
       setComment('');
     } else {
       onClose();
     }
-  }, [currentIndex, stories.length, onClose]);
+  }, [currentIndex, stories?.length, onClose]);
 
   const prevStory = useCallback(() => {
     if (currentIndex > 0) {
@@ -78,7 +78,7 @@ export default function StoryViewer({ stories, initialStoryIndex, onClose }: Sto
     <div className="fixed inset-0 z-[100] bg-black flex items-center justify-center select-none overflow-hidden" dir="rtl">
       {/* Progress Bars */}
       <div className="absolute top-4 left-4 right-4 z-10 flex gap-1">
-        {stories.map((_, index) => (
+        {(stories || []).map((_, index) => (
           <div key={index} className="h-1 flex-1 bg-white/30 rounded-full overflow-hidden">
             <div 
               className="h-full bg-white transition-all duration-50 ease-linear"
@@ -178,16 +178,16 @@ export default function StoryViewer({ stories, initialStoryIndex, onClose }: Sto
             className="absolute inset-x-0 bottom-0 bg-white rounded-t-2xl z-50 max-h-[70vh] flex flex-col"
           >
             <div className="p-4 border-b flex items-center justify-between">
-              <h3 className="font-bold">التعليقات ({currentStory.comments.length})</h3>
+              <h3 className="font-bold">التعليقات ({currentStory.comments?.length || 0})</h3>
               <button onClick={() => setShowComments(false)} className="p-1">
                 <X className="w-6 h-6" />
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {currentStory.comments.length === 0 ? (
+              {(currentStory.comments?.length || 0) === 0 ? (
                 <div className="text-center py-10 text-slate-400">لا توجد تعليقات بعد. كن أول من يعلق!</div>
               ) : (
-                currentStory.comments.map((c) => (
+                (currentStory.comments || []).map((c) => (
                   <div key={c.id} className="flex gap-3">
                     <img src={c.avatar} alt={c.user} className="w-8 h-8 rounded-full object-cover" />
                     <div className="flex-1">
@@ -226,7 +226,7 @@ export default function StoryViewer({ stories, initialStoryIndex, onClose }: Sto
           className="relative p-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-white"
         >
           <MessageCircle className="w-6 h-6" />
-          {currentStory.comments.length > 0 && (
+          {(currentStory.comments?.length || 0) > 0 && (
             <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-black">
               {currentStory.comments.length}
             </span>

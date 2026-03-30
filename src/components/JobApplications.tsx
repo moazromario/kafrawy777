@@ -34,11 +34,11 @@ export default function JobApplications() {
       const userJobs = allJobs.filter((j: any) => j.employer_id === user!.id);
       setMyJobs(userJobs);
 
-      if (userJobs.length > 0) {
+      if ((userJobs?.length || 0) > 0) {
         const allReceived: any[] = [];
         for (const job of userJobs) {
           const apps = await fetchJobApplications(job.id);
-          allReceived.push(...apps.map((a: any) => ({ ...a, job })));
+          allReceived.push(...(apps || []).map((a: any) => ({ ...a, job })));
         }
         setReceivedApplications(allReceived);
       }
@@ -95,13 +95,13 @@ export default function JobApplications() {
             onClick={() => setActiveTab('sent')}
             className={`flex-1 py-4 text-sm font-bold transition-colors border-b-2 ${activeTab === 'sent' ? 'text-blue-600 border-blue-600' : 'text-slate-500 border-transparent hover:bg-slate-50'}`}
           >
-            طلباتي المقدمة ({sentApplications.length})
+            طلباتي المقدمة ({sentApplications?.length || 0})
           </button>
           <button 
             onClick={() => setActiveTab('received')}
             className={`flex-1 py-4 text-sm font-bold transition-colors border-b-2 ${activeTab === 'received' ? 'text-blue-600 border-blue-600' : 'text-slate-500 border-transparent hover:bg-slate-50'}`}
           >
-            الطلبات الواردة ({receivedApplications.length})
+            الطلبات الواردة ({receivedApplications?.length || 0})
           </button>
         </div>
 
@@ -112,7 +112,7 @@ export default function JobApplications() {
             </div>
           ) : activeTab === 'sent' ? (
             <div className="space-y-4">
-              {sentApplications.length > 0 ? (
+              {(sentApplications?.length || 0) > 0 ? (
                 sentApplications.map((app) => (
                   <div key={app.id} className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:border-blue-200 transition-all">
                     <div className="flex justify-between items-start mb-3">
@@ -157,7 +157,7 @@ export default function JobApplications() {
             </div>
           ) : (
             <div className="space-y-4">
-              {receivedApplications.length > 0 ? (
+              {(receivedApplications?.length || 0) > 0 ? (
                 receivedApplications.map((app) => (
                   <div key={app.id} className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
                     <div className="flex justify-between items-start mb-4">

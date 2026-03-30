@@ -111,7 +111,7 @@ export default function ProductList() {
               {filteredProducts.map(product => (
                 <ProductCard key={product.id} product={product} />
               ))}
-              {filteredProducts.length === 0 && (
+              {(filteredProducts?.length || 0) === 0 && (
                 <div className="col-span-full text-center text-slate-500 py-12">
                   لا توجد منتجات في هذه الفئة.
                 </div>

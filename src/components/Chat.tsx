@@ -152,7 +152,7 @@ export default function Chat() {
 
     // Fetch profiles for these users
     const otherUserIds = Array.from(conversationMap.keys());
-    if (otherUserIds.length === 0) {
+    if ((otherUserIds?.length || 0) === 0) {
       setLoading(false);
       return;
     }
@@ -252,7 +252,7 @@ export default function Chat() {
               <div className="flex justify-center items-center py-8">
                 <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
               </div>
-            ) : chats.length > 0 ? (
+            ) : (chats?.length || 0) > 0 ? (
               chats.map((chat) => (
                 <div 
                   key={chat.id} 

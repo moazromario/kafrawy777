@@ -59,16 +59,16 @@ export default function Profile() {
       ]);
       
       setProfile(prof);
-      setUserPosts(posts);
-      setUserProducts(products);
-      setUserJobs(jobs);
-      setUserFriends(friends);
+      setUserPosts(posts || []);
+      setUserProducts(products || []);
+      setUserJobs(jobs || []);
+      setUserFriends(friends || []);
       
       setEditForm({
-        full_name: prof.full_name || '',
-        bio: prof.bio || '',
-        avatar_url: prof.avatar_url || '',
-        cover_url: prof.cover_url || ''
+        full_name: prof?.full_name || '',
+        bio: prof?.bio || '',
+        avatar_url: prof?.avatar_url || '',
+        cover_url: prof?.cover_url || ''
       });
     } catch (err) {
       console.error('Error loading profile data:', err);
@@ -223,19 +223,19 @@ export default function Profile() {
             {/* Stats Bar */}
             <div className="flex border-t border-slate-100 pt-6 gap-8 md:gap-12 overflow-x-auto hide-scrollbar">
               <div className="text-center">
-                <p className="text-xl font-black text-slate-900">{userPosts.length}</p>
+                <p className="text-xl font-black text-slate-900">{userPosts?.length || 0}</p>
                 <p className="text-sm text-slate-500 font-bold">منشور</p>
               </div>
               <div className="text-center">
-                <p className="text-xl font-black text-slate-900">{userFriends.length}</p>
+                <p className="text-xl font-black text-slate-900">{userFriends?.length || 0}</p>
                 <p className="text-sm text-slate-500 font-bold">صديق</p>
               </div>
               <div className="text-center">
-                <p className="text-xl font-black text-slate-900">{userProducts.length}</p>
+                <p className="text-xl font-black text-slate-900">{userProducts?.length || 0}</p>
                 <p className="text-sm text-slate-500 font-bold">منتج</p>
               </div>
               <div className="text-center">
-                <p className="text-xl font-black text-slate-900">{userJobs.length}</p>
+                <p className="text-xl font-black text-slate-900">{userJobs?.length || 0}</p>
                 <p className="text-sm text-slate-500 font-bold">وظيفة</p>
               </div>
             </div>
@@ -367,7 +367,7 @@ export default function Profile() {
               >
                 {activeTab === 'posts' && (
                   <>
-                    {userPosts.length > 0 ? (
+                    {(userPosts?.length || 0) > 0 ? (
                       userPosts.map(post => (
                         <PostCard key={post.id} post={post} />
                       ))
@@ -383,15 +383,15 @@ export default function Profile() {
 
                 {activeTab === 'friends' && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {userFriends.length > 0 ? (
+                    {(userFriends?.length || 0) > 0 ? (
                       userFriends.map(friendship => {
                         const friend = friendship.user_id === user?.id ? friendship.friend : friendship.user;
                         return (
                           <div key={friendship.id} className="bg-white p-4 rounded-xl border border-slate-200 flex items-center gap-4 hover:shadow-md transition-shadow">
-                            <img src={friend.avatar_url || "https://picsum.photos/seed/user/100/100"} className="w-14 h-14 rounded-full object-cover" alt={friend.full_name} />
+                            <img src={friend?.avatar_url || "https://picsum.photos/seed/user/100/100"} className="w-14 h-14 rounded-full object-cover" alt={friend?.full_name} />
                             <div className="flex-1 min-w-0">
-                              <h4 className="font-bold text-slate-900 truncate">{friend.full_name}</h4>
-                              <p className="text-xs text-slate-500 truncate">{friend.bio || 'لا يوجد نبذة'}</p>
+                              <h4 className="font-bold text-slate-900 truncate">{friend?.full_name}</h4>
+                              <p className="text-xs text-slate-500 truncate">{friend?.bio || 'لا يوجد نبذة'}</p>
                             </div>
                             <button className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                               <MoreHorizontal className="w-5 h-5" />
@@ -411,7 +411,7 @@ export default function Profile() {
 
                 {activeTab === 'products' && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {userProducts.length > 0 ? (
+                    {(userProducts?.length || 0) > 0 ? (
                       userProducts.map(product => (
                         <div key={product.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-md transition-shadow group">
                           <div className="h-40 bg-slate-100 overflow-hidden">
@@ -435,7 +435,7 @@ export default function Profile() {
 
                 {activeTab === 'jobs' && (
                   <div className="space-y-4">
-                    {userJobs.length > 0 ? (
+                    {(userJobs?.length || 0) > 0 ? (
                       userJobs.map(job => (
                         <div key={job.id} className="bg-white p-5 rounded-xl border border-slate-200 hover:shadow-md transition-shadow">
                           <div className="flex justify-between items-start mb-3">

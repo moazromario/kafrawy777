@@ -49,7 +49,7 @@ export default function JobDetails() {
     if (!user || !id) return;
     try {
       const apps = await fetchUserApplications(user.id);
-      const applied = apps.some((app: any) => app.job_id === id);
+      const applied = (apps || []).some((app: any) => app.job_id === id);
       setHasApplied(applied);
     } catch (err) {
       console.error('Error checking application status:', err);

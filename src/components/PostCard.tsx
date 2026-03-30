@@ -194,7 +194,7 @@ const PostCard: React.FC<{ post: Post }> = ({ post }) => {
         </div>
         <div className="flex gap-3">
           <span className="cursor-pointer hover:underline" onClick={() => setShowComments(!showComments)}>
-            {post.comments.length} تعليقات
+            {post.comments?.length || 0} تعليقات
           </span>
         </div>
       </div>
