@@ -15,7 +15,7 @@ export default function Comments({ postId, comments }: { postId: string, comment
   };
 
   return (
-    <div className="px-4 pb-4 pt-2 border-t border-slate-100">
+    <div className="px-4 pb-4 pt-2 border-t border-slate-100" dir="rtl">
       {comments.map(comment => (
         <div key={comment.id} className="flex gap-2 mb-4">
           <img src={comment.avatar} alt={comment.user} className="w-8 h-8 rounded-full object-cover border border-slate-200" referrerPolicy="no-referrer" />
@@ -32,11 +32,11 @@ export default function Comments({ postId, comments }: { postId: string, comment
             type="text" 
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Write a comment..." 
+            placeholder="اكتب تعليقاً..." 
             className="bg-transparent border-none focus:outline-none w-full text-[15px] py-1" 
           />
           <button type="submit" disabled={!newComment.trim()} className="text-blue-600 hover:bg-slate-200 p-1.5 rounded-full transition-colors disabled:opacity-50">
-            <Send className="w-4 h-4" />
+            <Send className="w-4 h-4 rotate-180" />
           </button>
         </div>
       </form>

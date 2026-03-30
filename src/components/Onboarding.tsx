@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 
 const slides = [
-  { title: "مرحباً بك في كفراوي", description: "تطبيقك الشامل لكل احتياجاتك اليومية." },
+  { title: "مرحباً بك في كفراوي بوك", description: "تطبيقك الشامل لكل احتياجاتك اليومية." },
   { title: "سهولة في الاستخدام", description: "تجربة مستخدم سلسة وبسيطة." },
   { title: "ابدأ الآن", description: "سجل دخولك واستمتع بالخدمات." },
 ];

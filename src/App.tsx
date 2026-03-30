@@ -13,11 +13,21 @@ import Login from './components/Login';
 import Register from './components/Register';
 import ForgotPassword from './components/ForgotPassword';
 import Profile from './components/Profile';
+import Friends from './components/Friends';
 import Feed from './components/Feed';
+import ProductList from './components/ProductList';
+import ProductDetails from './components/ProductDetails';
+import AddProduct from './components/AddProduct';
+import Notifications from './components/Notifications';
+import Chat from './components/Chat';
+import Jobs from './components/Jobs';
+import JobDetails from './components/JobDetails';
+import AddJob from './components/AddJob';
+import JobApplications from './components/JobApplications';
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 font-sans">
+    <div className="min-h-screen bg-slate-100 text-slate-900 font-sans" dir="rtl">
       <AuthProvider>
         <CommunityProvider>
           <BrowserRouter>
@@ -34,6 +44,16 @@ export default function App() {
                 <Route path="/" element={<Navigate to="/feed" replace />} />
                 <Route path="/feed" element={<Feed />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/friends" element={<Friends />} />
+                <Route path="/marketplace" element={<ProductList />} />
+                <Route path="/marketplace/item/:id" element={<ProductDetails />} />
+                <Route path="/marketplace/create" element={<AddProduct />} />
+                <Route path="/jobs" element={<Jobs />} />
+                <Route path="/jobs/applications" element={<JobApplications />} />
+                <Route path="/jobs/:id" element={<JobDetails />} />
+                <Route path="/jobs/create" element={<AddJob />} />
+                <Route path="/notifications" element={<Notifications />} />
+                <Route path="/chat" element={<Chat />} />
               </Route>
             </Routes>
           </BrowserRouter>

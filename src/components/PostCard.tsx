@@ -75,7 +75,16 @@ const PostCard: React.FC<{ post: Post }> = ({ post }) => {
         <div className="flex items-center gap-3">
           <img src={post.avatar} alt={post.user} className="w-10 h-10 rounded-full object-cover border border-slate-200" referrerPolicy="no-referrer" />
           <div>
-            <h3 className="font-semibold text-slate-900 leading-tight">{post.user}</h3>
+            <div className="flex flex-wrap items-center gap-x-1">
+              <h3 className="font-semibold text-slate-900 leading-tight">{post.user}</h3>
+              {(post.feeling || post.activity) && (
+                <div className="flex items-center gap-1 text-sm text-slate-500">
+                  <span>— يشعر بـ</span>
+                  {post.feeling && <span>{post.feeling}</span>}
+                  {post.activity && <span>{post.activity}</span>}
+                </div>
+              )}
+            </div>
             <p className="text-xs text-slate-500">{post.time}</p>
           </div>
         </div>

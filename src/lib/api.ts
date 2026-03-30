@@ -19,11 +19,11 @@ export async function fetchPosts() {
 }
 
 // Create a new post
-export async function createPost(userId: string, authorName: string, authorAvatar: string, content: string, imageUrl?: string) {
+export async function createPost(userId: string, authorName: string, authorAvatar: string, content: string, imageUrl?: string, feeling?: string, activity?: string) {
   const { data, error } = await supabase
     .from('posts')
     .insert([
-      { user_id: userId, author_name: authorName, author_avatar: authorAvatar, content, image_url: imageUrl }
+      { user_id: userId, author_name: authorName, author_avatar: authorAvatar, content, image_url: imageUrl, feeling, activity }
     ])
     .select()
     .single();
@@ -44,10 +44,10 @@ export async function deletePost(postId: string, userId: string) {
 }
 
 // Update a post
-export async function updatePost(postId: string, userId: string, content: string) {
+export async function updatePost(postId: string, userId: string, content: string, feeling?: string, activity?: string) {
   const { data, error } = await supabase
     .from('posts')
-    .update({ content })
+    .update({ content, feeling, activity })
     .eq('id', postId)
     .eq('user_id', userId)
     .select()
@@ -105,7 +105,7 @@ export async function fetchStories() {
   
   const { data, error } = await supabase
     .from('stories')
-    .select('*')
+    .select('*, story_comments(*)')
     .gte('created_at', twentyFourHoursAgo)
     .order('created_at', { ascending: false });
 
@@ -130,6 +130,87 @@ export async function createStory(userId: string, authorName: string, authorAvat
   return data;
 }
 
+// Add a comment to a story
+export async function addStoryComment(storyId: string, userId: string, authorName: string, authorAvatar: string, content: string) {
+  const { data, error } = await supabase
+    .from('story_comments')
+    .insert([
+      { story_id: storyId, user_id: userId, author_name: authorName, author_avatar: authorAvatar, content }
+    ])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+// Fetch all active live streams
+export async function fetchLiveStreams() {
+  const { data, error } = await supabase
+    .from('live_streams')
+    .select('*')
+    .eq('is_live', true)
+    .order('started_at', { ascending: false });
+
+  if (error) {
+    console.error("Error fetching live streams:", error);
+    return [];
+  }
+  return data as any[];
+}
+
+// Start a live stream
+export async function startLiveStream(userId: string, authorName: string, authorAvatar: string, title: string) {
+  const { data, error } = await supabase
+    .from('live_streams')
+    .insert([
+      { user_id: userId, author_name: authorName, author_avatar: authorAvatar, title }
+    ])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+// End a live stream
+export async function endLiveStream(streamId: string, userId: string) {
+  const { error } = await supabase
+    .from('live_streams')
+    .update({ is_live: false, ended_at: new Date().toISOString() })
+    .eq('id', streamId)
+    .eq('user_id', userId);
+
+  if (error) throw error;
+}
+
+// Send a message in live stream chat
+export async function sendLiveMessage(streamId: string, userId: string, authorName: string, authorAvatar: string, content: string) {
+  const { data, error } = await supabase
+    .from('live_messages')
+    .insert([
+      { stream_id: streamId, user_id: userId, author_name: authorName, author_avatar: authorAvatar, content }
+    ])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+// Subscribe to live stream changes
+export function subscribeToLiveStreams(callback: () => void) {
+  const subscription = supabase
+    .channel('public:live_streams')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'live_streams' }, callback)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'live_messages' }, callback)
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(subscription);
+  };
+}
+
 // Subscribe to real-time changes
 export function subscribeToPosts(callback: () => void) {
   const subscription = supabase
@@ -138,6 +219,7 @@ export function subscribeToPosts(callback: () => void) {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, callback)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'likes' }, callback)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'stories' }, callback)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'story_comments' }, callback)
     .subscribe();
 
   return () => {
@@ -171,4 +253,197 @@ export async function uploadMedia(file: File) {
 
   const { data } = supabase.storage.from('media').getPublicUrl(filePath);
   return data.publicUrl;
+}
+
+// --- Friendships API ---
+
+// Fetch all profiles (for searching friends)
+export async function fetchProfiles(query?: string) {
+  let request = supabase
+    .from('profiles')
+    .select('*');
+  
+  if (query) {
+    request = request.ilike('full_name', `%${query}%`);
+  }
+
+  const { data, error } = await request.limit(20);
+  if (error) throw error;
+  return data;
+}
+
+// Fetch all friendships for a user
+export async function fetchFriendships(userId: string) {
+  const { data, error } = await supabase
+    .from('friendships')
+    .select(`
+      *,
+      user:user_id(id, full_name, avatar_url),
+      friend:friend_id(id, full_name, avatar_url)
+    `)
+    .or(`user_id.eq.${userId},friend_id.eq.${userId}`);
+
+  if (error) throw error;
+  return data;
+}
+
+// Send a friend request
+export async function sendFriendRequest(userId: string, friendId: string) {
+  const { data, error } = await supabase
+    .from('friendships')
+    .insert([{ user_id: userId, friend_id: friendId, status: 'pending' }])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+// Accept a friend request
+export async function acceptFriendRequest(requestId: string) {
+  const { data, error } = await supabase
+    .from('friendships')
+    .update({ status: 'accepted' })
+    .eq('id', requestId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+// Reject or Cancel a friend request / Remove a friend
+export async function deleteFriendship(requestId: string) {
+  const { error } = await supabase
+    .from('friendships')
+    .delete()
+    .eq('id', requestId);
+
+  if (error) throw error;
+}
+
+// --- Jobs API ---
+
+export async function fetchJobs() {
+  const { data, error } = await supabase
+    .from('jobs')
+    .select(`
+      *,
+      employer:employer_id(id, full_name, avatar_url)
+    `)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function fetchJobById(id: string) {
+  const { data, error } = await supabase
+    .from('jobs')
+    .select(`
+      *,
+      employer:employer_id(id, full_name, avatar_url)
+    `)
+    .eq('id', id)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function createJob(employerId: string, jobData: any) {
+  const { data, error } = await supabase
+    .from('jobs')
+    .insert([{ ...jobData, employer_id: employerId }])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function applyForJob(jobId: string, applicantId: string, cvUrl: string, coverLetter: string) {
+  const { data, error } = await supabase
+    .from('job_applications')
+    .insert([{ job_id: jobId, applicant_id: applicantId, cv_url: cvUrl, cover_letter: coverLetter }])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function fetchJobApplications(jobId: string) {
+  const { data, error } = await supabase
+    .from('job_applications')
+    .select(`
+      *,
+      applicant:applicant_id(id, full_name, avatar_url, cv_url)
+    `)
+    .eq('job_id', jobId)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function updateApplicationStatus(applicationId: string, status: string) {
+  const { data, error } = await supabase
+    .from('job_applications')
+    .update({ status })
+    .eq('id', applicationId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function fetchUserApplications(userId: string) {
+  const { data, error } = await supabase
+    .from('job_applications')
+    .select(`
+      *,
+      job:job_id(*)
+    `)
+    .eq('applicant_id', userId)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
+
+// --- Messages API ---
+export function subscribeToFriendships(callback: () => void) {
+  const subscription = supabase
+    .channel('public:friendships')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'friendships' }, callback)
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(subscription);
+  };
+}
+
+export async function fetchProfile(userId: string) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function updateProfile(userId: string, profileData: any) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .update(profileData)
+    .eq('id', userId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
 }
