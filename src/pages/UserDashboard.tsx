@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '../lib/utils';
+import { fetchWalletBalance, fetchUserOrders, depositWallet } from '../services/api';
 
 export default function UserDashboard({ user }: { user: any }) {
   const [activeTab, setActiveTab] = useState('orders');
@@ -37,12 +38,10 @@ export default function UserDashboard({ user }: { user: any }) {
 
   const fetchData = async () => {
     try {
-      const [walletRes, ordersRes] = await Promise.all([
-        fetch(`/api/wallet/${user.id}`),
-        fetch(`/api/captain/orders/${user.id}`) // Reusing for user orders for now
+      const [walletData, ordersData] = await Promise.all([
+        fetchWalletBalance(user.id),
+        fetchUserOrders(user.id)
       ]);
-      const walletData = await walletRes.json();
-      const ordersData = await ordersRes.json();
       setWallet(walletData);
       setOrders(ordersData);
     } catch (err) {
@@ -58,16 +57,7 @@ export default function UserDashboard({ user }: { user: any }) {
       return;
     }
     try {
-      const res = await fetch('/api/wallet/deposit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.id,
-          amount: Number(depositAmount),
-          transactionRef
-        })
-      });
-      if (!res.ok) throw new Error('خطأ في الإيداع');
+      await depositWallet(user.id, Number(depositAmount), transactionRef);
       toast.success('تم إرسال طلب الإيداع بنجاح');
       setIsDepositOpen(false);
       fetchData();

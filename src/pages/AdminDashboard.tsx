@@ -34,6 +34,7 @@ import {
   Cell
 } from 'recharts';
 import { toast } from 'sonner';
+import { fetchAdminStats } from '../services/api';
 
 const COLORS = ['#EA580C', '#EF4444', '#F97316', '#FB923C'];
 
@@ -52,10 +53,7 @@ export default function AdminDashboard({ user }: { user: any }) {
 
   const fetchStats = async () => {
     try {
-      const res = await fetch('/api/admin/stats', {
-        headers: { 'x-admin-id': user.id }
-      });
-      const data = await res.json();
+      const data = await fetchAdminStats();
       setStats(data);
     } catch (err) {
       toast.error('خطأ في تحميل الإحصائيات');

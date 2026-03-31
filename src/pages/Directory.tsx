@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { fetchDirectory } from '../services/api';
 
 interface Item {
   id: string;
@@ -40,8 +41,7 @@ export default function Directory({ filter }: { filter?: string }) {
 
   const fetchData = async () => {
     try {
-      const res = await fetch('/api/directory');
-      const data = await res.json();
+      const data = await fetchDirectory();
       
       const combined: Item[] = [
         ...(data.services || []).map((s: any) => ({ ...s, type: 'service' })),

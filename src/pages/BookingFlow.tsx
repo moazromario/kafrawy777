@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '../lib/utils';
+import { fetchDirectory, fetchWalletBalance, createBooking } from '../services/api';
 
 export default function BookingFlow({ user }: { user: any }) {
   const { type, id } = useParams();
@@ -41,9 +42,7 @@ export default function BookingFlow({ user }: { user: any }) {
 
   const fetchItem = async () => {
     try {
-      // In a real app, fetch specific item by ID and type
-      const res = await fetch('/api/directory');
-      const data = await res.json();
+      const data = await fetchDirectory();
       let found = null;
       if (type === 'service') found = data.services.find((s: any) => s.id === id);
       if (type === 'vehicle') found = data.vehicles.find((v: any) => v.id === id);
@@ -60,8 +59,7 @@ export default function BookingFlow({ user }: { user: any }) {
 
   const fetchWallet = async () => {
     try {
-      const res = await fetch(`/api/wallet/${user.id}`);
-      const data = await res.json();
+      const data = await fetchWalletBalance(user.id);
       setWalletBalance(data.balance || 0);
     } catch (err) {}
   };
@@ -74,23 +72,16 @@ export default function BookingFlow({ user }: { user: any }) {
 
     setIsProcessing(true);
     try {
-      const res = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.id,
-          entityType: type,
-          entityId: id,
-          startDate: new Date().toISOString(),
-          totalPrice: item.price,
-          paymentMethod,
-          pickup,
-          dropoff
-        })
+      await createBooking({
+        userId: user.id,
+        entityType: type,
+        entityId: id,
+        startDate: new Date().toISOString(),
+        totalPrice: item.price,
+        paymentMethod,
+        pickup,
+        dropoff
       });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
 
       setStep(3);
       toast.success('تم الحجز بنجاح');

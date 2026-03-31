@@ -41,7 +41,7 @@ export default function AdminLayout() {
   if (!admin) return null;
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white font-sans flex overflow-hidden" dir="rtl">
+    <div className="h-full w-full bg-gray-900 text-white font-sans flex overflow-hidden" dir="rtl">
       {/* Sidebar */}
       <motion.aside 
         initial={false}

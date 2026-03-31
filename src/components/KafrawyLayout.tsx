@@ -51,9 +51,9 @@ export default function KafrawyLayout({ children }: { children: React.ReactNode 
   );
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900" dir="rtl">
+    <div className="h-full w-full flex flex-col bg-slate-100 text-slate-900" dir="rtl">
       {/* Top Navbar (Desktop & Mobile) */}
-      <header className="sticky top-0 z-50 bg-white shadow-sm h-14 md:h-16 flex items-center justify-between px-4">
+      <header className="z-50 bg-white shadow-sm h-14 md:h-16 flex-shrink-0 flex items-center justify-between px-4">
         <div className="flex items-center gap-2">
           <Link to="/" className="flex items-center gap-2">
             <WatermelonLogo />
@@ -95,13 +95,15 @@ export default function KafrawyLayout({ children }: { children: React.ReactNode 
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <main className="pb-16 md:pb-0 md:pt-4 max-w-7xl mx-auto flex justify-center">
-        {children}
+      {/* Scrollable Main Content Area */}
+      <main className="flex-1 overflow-y-auto overflow-x-hidden w-full relative custom-scrollbar">
+        <div className="max-w-7xl mx-auto flex justify-center py-4 pb-20 md:pb-8">
+          {children}
+        </div>
       </main>
 
       {/* Bottom Navigation (Mobile) */}
-      <nav className="fixed bottom-0 w-full bg-white border-t border-slate-200 flex justify-around items-center h-14 md:hidden z-50 pb-safe">
+      <nav className="bg-white border-t border-slate-200 flex justify-around items-center h-14 flex-shrink-0 md:hidden z-50 pb-safe">
         <NavItem to="/" icon={<Home />} label="الرئيسية" active={location.pathname === '/'} />
         <NavItem to="/marketplace" icon={<Store />} label="السوق" active={location.pathname.startsWith('/marketplace')} />
         <NavItem to="/services" icon={<Wrench />} label="الخدمات" active={location.pathname.startsWith('/services')} />

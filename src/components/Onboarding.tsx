@@ -22,7 +22,7 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-6 text-center">
+    <div className="h-full w-full overflow-y-auto flex flex-col items-center justify-center p-6 text-center">
       <AnimatePresence mode="wait">
         <motion.div
           key={index}

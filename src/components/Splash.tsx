@@ -10,7 +10,7 @@ export default function Splash() {
   }, [navigate]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-blue-600">
+    <div className="h-full w-full flex items-center justify-center bg-blue-600">
       <h1 className="text-4xl font-bold text-white">كفراوي بوك</h1>
     </div>
   );

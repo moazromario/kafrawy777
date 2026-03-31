@@ -52,7 +52,6 @@ import AdminPayments from './pages/Admin/AdminPayments';
 import AdminItems from './pages/Admin/AdminItems';
 import AdminSettings from './pages/Admin/AdminSettings';
 import AdminAuditLogs from './pages/Admin/AdminAuditLogs';
-import CategoriesSystem from './pages/CategoriesSystem';
 
 import { ErrorBoundary } from './components/ErrorBoundary';
 
@@ -61,7 +60,7 @@ import { Toaster } from 'sonner';
 export default function App() {
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-slate-100 text-slate-900 font-sans" dir="rtl">
+      <div className="h-screen w-screen overflow-hidden bg-slate-100 text-slate-900 font-sans flex flex-col" dir="rtl">
         <Toaster position="top-center" richColors />
         <AuthProvider>
           <CommunityProvider>
@@ -105,7 +104,6 @@ export default function App() {
                   <Route path="/islamiat/showcase" element={<DesignShowcase />} />
                   
                   {/* Services Module Routes */}
-                  <Route path="/categories" element={<CategoriesSystem />} />
                   <Route path="/services" element={<ServicesHome />} />
                   <Route path="/services/list" element={<ProviderList />} />
                   <Route path="/services/provider/:id" element={<ProviderProfile />} />

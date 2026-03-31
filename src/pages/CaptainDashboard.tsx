@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '../lib/utils';
+import { fetchCaptainOrders, updateOrderStatus } from '../services/api';
 
 export default function CaptainDashboard({ user }: { user: any }) {
   const [orders, setOrders] = useState<any[]>([]);
@@ -31,8 +32,7 @@ export default function CaptainDashboard({ user }: { user: any }) {
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch(`/api/captain/orders/${user.id}`);
-      const data = await res.json();
+      const data = await fetchCaptainOrders(user.id);
       setOrders(data);
     } catch (err) {
       toast.error('خطأ في تحميل الطلبات');
@@ -43,12 +43,7 @@ export default function CaptainDashboard({ user }: { user: any }) {
 
   const updateStatus = async (orderId: string, status: string) => {
     try {
-      const res = await fetch(`/api/captain/orders/${orderId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
-      });
-      if (!res.ok) throw new Error('خطأ في تحديث الحالة');
+      await updateOrderStatus(orderId, status);
       toast.success(`تم تحديث الحالة إلى ${status}`);
       fetchOrders();
     } catch (err) {

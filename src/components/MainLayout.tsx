@@ -6,9 +6,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const location = useLocation();
   
   return (
-    <div className="min-h-screen bg-slate-100 pb-16 md:pb-0 md:pt-14" dir="rtl">
+    <div className="h-full w-full flex flex-col bg-slate-100" dir="rtl">
       {/* Top App Bar */}
-      <header className="bg-white shadow-sm fixed top-0 w-full z-50 h-14 flex items-center justify-between px-4">
+      <header className="bg-white shadow-sm z-50 h-14 md:h-16 flex-shrink-0 flex items-center justify-between px-4">
         <div className="flex items-center gap-2">
           <Link to="/feed" className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl hover:bg-blue-700 transition-colors">
             ك
@@ -51,15 +51,15 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="pt-14 md:pt-6 mx-auto w-full">
-        <div className={`${location.pathname === '/profile' ? 'max-w-6xl' : 'max-w-2xl'} mx-auto w-full px-0 md:px-4`}>
+      {/* Scrollable Main Content */}
+      <main className="flex-1 overflow-y-auto overflow-x-hidden w-full relative custom-scrollbar">
+        <div className={`${location.pathname === '/profile' ? 'max-w-6xl' : 'max-w-2xl'} mx-auto w-full px-0 md:px-4 py-4 pb-20 md:pb-8`}>
           {children}
         </div>
       </main>
 
       {/* Bottom Navigation (Mobile) */}
-      <nav className="fixed bottom-0 w-full bg-white border-t border-slate-200 flex justify-around items-center h-16 md:hidden z-50">
+      <nav className="bg-white border-t border-slate-200 flex justify-around items-center h-16 flex-shrink-0 md:hidden z-50">
         <NavItem to="/feed" icon={<Home />} active={location.pathname === '/feed'} />
         <NavItem to="/marketplace" icon={<Store />} active={location.pathname.startsWith('/marketplace')} />
         <NavItem to="/bookings" icon={<Calendar />} active={location.pathname.startsWith('/bookings')} />
