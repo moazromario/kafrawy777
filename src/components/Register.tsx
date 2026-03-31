@@ -17,8 +17,6 @@ export default function Register() {
   const [authError, setAuthError] = useState<string | null>(null);
   const navigate = useNavigate();
   
-  const isConfigured = !!import.meta.env.VITE_SUPABASE_URL && !!import.meta.env.VITE_SUPABASE_ANON_KEY;
-
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -59,11 +57,6 @@ export default function Register() {
   return (
     <AuthLayout title="إنشاء حساب جديد">
       <form onSubmit={handleRegister} className="space-y-4">
-        {!isConfigured && (
-          <div className="p-4 text-sm text-yellow-800 bg-yellow-50 rounded-lg text-center">
-            تنبيه: يرجى إعداد متغيرات بيئة Supabase في إعدادات المشروع لتمكين إنشاء حساب.
-          </div>
-        )}
         {authError && <p className="text-red-500 text-sm">{authError}</p>}
         <Input name="name" label="الاسم الكامل" type="text" error={errors.name} />
         <Input name="email" label="البريد الإلكتروني" type="email" error={errors.email} />
