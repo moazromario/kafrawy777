@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Loader2, MapPin, Briefcase, Building2, Clock, FileText } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Search, Plus, Loader2, MapPin, Briefcase, Building2, Clock, FileText, Wrench } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import MainLayout from './MainLayout';
 
@@ -54,6 +54,13 @@ export default function Jobs() {
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold text-slate-900">الوظائف</h1>
             <div className="flex gap-2">
+              <Link 
+                to="/services"
+                className="bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors border border-blue-100"
+              >
+                <Wrench className="w-5 h-5" />
+                <span className="hidden sm:inline">الخدمات</span>
+              </Link>
               <button 
                 onClick={() => navigate('/jobs/applications')}
                 className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"

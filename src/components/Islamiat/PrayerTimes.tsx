@@ -4,6 +4,7 @@ import {
   Loader2, ChevronLeft, ChevronRight, Info
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { toast } from 'sonner';
 
 interface Timings {
   Fajr: string;
@@ -41,6 +42,7 @@ export default function PrayerTimes() {
         },
         (err) => {
           console.error('Geolocation error:', err);
+          toast.error(`خطأ في تحديد الموقع الجغرافي: ${err.message || 'يرجى تفعيل الوصول للموقع'}`);
           // Fallback to Cairo if permission denied
           fetchPrayerTimesByCity('Cairo', 'Egypt');
         }

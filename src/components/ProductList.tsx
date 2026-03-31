@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Loader2, MapPin } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Search, Plus, Loader2, MapPin, Wrench } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 import ProductCard, { Product } from './ProductCard';
 import { supabase } from '../lib/supabase';
 import MainLayout from './MainLayout';
@@ -73,6 +73,13 @@ export default function ProductList() {
               <Plus className="w-5 h-5" />
               بيع
             </button>
+            <Link 
+              to="/services"
+              className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors border border-blue-100"
+            >
+              <Wrench className="w-5 h-5" />
+              الخدمات
+            </Link>
             <button className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-900 font-semibold py-2 px-4 rounded-lg transition-colors">
               الفئات
             </button>

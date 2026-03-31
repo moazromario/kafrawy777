@@ -4,8 +4,9 @@ import { motion, AnimatePresence } from 'motion/react';
 
 const slides = [
   { title: "مرحباً بك في كفراوي بوك", description: "تطبيقك الشامل لكل احتياجاتك اليومية." },
-  { title: "سهولة في الاستخدام", description: "تجربة مستخدم سلسة وبسيطة." },
-  { title: "ابدأ الآن", description: "سجل دخولك واستمتع بالخدمات." },
+  { title: "دليل الخدمات المتكامل", description: "ابحث عن أفضل الصنايعية، المدرسين، والأطباء في كفر البطيخ." },
+  { title: "سوق كفراوي", description: "بيع واشتري كل اللي محتاجه بسهولة وأمان." },
+  { title: "ابدأ الآن", description: "سجل دخولك واستمتع بكافة الخدمات." },
 ];
 
 export default function Onboarding() {

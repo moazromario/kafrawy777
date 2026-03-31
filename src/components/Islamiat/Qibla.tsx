@@ -4,6 +4,7 @@ import {
   ChevronLeft, Info, Navigation
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { toast } from 'sonner';
 
 export default function Qibla() {
   const [heading, setHeading] = useState(0);
@@ -48,6 +49,7 @@ export default function Qibla() {
         },
         (error) => {
           console.error('Geolocation error:', error);
+          toast.error(`خطأ في تحديد الموقع الجغرافي: ${error.message || 'يرجى تفعيل الوصول للموقع'}`);
           // Default to Cairo
           setQiblaDirection(135);
           setLoading(false);

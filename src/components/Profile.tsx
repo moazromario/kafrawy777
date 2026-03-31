@@ -6,11 +6,11 @@ import {
   Camera, Edit2, MoreHorizontal, PlusSquare, FileText, Upload, 
   Loader2, CheckCircle2, MapPin, GraduationCap, Calendar, 
   Users, Briefcase, ShoppingBag, Grid, X, Save, LogOut, Info,
-  List, Heart, MessageCircle, Search, Filter
+  List, Heart, MessageCircle, Search, Filter, Wrench
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { 
   fetchProfile, updateProfile, uploadMedia, 
   fetchUserPosts, fetchUserProducts, fetchUserJobs, fetchUserFriends 
@@ -24,7 +24,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
-  const [activeTab, setActiveTab] = useState<'posts' | 'friends' | 'products' | 'jobs'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'friends' | 'products' | 'jobs' | 'bookings'>('posts');
   const [postViewMode, setPostViewMode] = useState<'grid' | 'list'>('grid');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   
@@ -33,6 +33,7 @@ export default function Profile() {
   const [userProducts, setUserProducts] = useState<any[]>([]);
   const [userJobs, setUserJobs] = useState<any[]>([]);
   const [userFriends, setUserFriends] = useState<any[]>([]);
+  const [userBookings, setUserBookings] = useState<any[]>([]);
   
   // Edit form state
   const [editForm, setEditForm] = useState({
@@ -52,12 +53,13 @@ export default function Profile() {
     if (!user) return;
     setLoading(true);
     try {
-      const [prof, posts, products, jobs, friends] = await Promise.all([
+      const [prof, posts, products, jobs, friends, bookings] = await Promise.all([
         fetchProfile(user.id),
         fetchUserPosts(user.id),
         fetchUserProducts(user.id),
         fetchUserJobs(user.id),
-        fetchUserFriends(user.id)
+        fetchUserFriends(user.id),
+        supabase.from('bookings').select('*, booking_items(*)').eq('user_id', user.id)
       ]);
       
       setProfile(prof);
@@ -65,6 +67,7 @@ export default function Profile() {
       setUserProducts(products || []);
       setUserJobs(jobs || []);
       setUserFriends(friends || []);
+      setUserBookings(bookings.data || []);
       
       setEditForm({
         full_name: prof?.full_name || '',
@@ -255,6 +258,7 @@ export default function Profile() {
               { id: 'friends', label: 'الأصدقاء', icon: Users },
               { id: 'products', label: 'السوق', icon: ShoppingBag },
               { id: 'jobs', label: 'الوظائف', icon: Briefcase },
+              { id: 'bookings', label: 'حجوزاتي', icon: Calendar },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -310,6 +314,15 @@ export default function Profile() {
                     <p className="text-sm font-black">مطور واجهات أمامية</p>
                   </div>
                 </div>
+                <Link to="/services" className="flex items-center gap-4 text-slate-700 p-3 rounded-2xl hover:bg-blue-50 transition-colors border border-transparent hover:border-blue-100">
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+                    <Wrench className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-400 font-bold uppercase">الخدمات</p>
+                    <p className="text-sm font-black text-blue-600">استكشف دليل الخدمات</p>
+                  </div>
+                </Link>
               </div>
             </div>
 
@@ -623,6 +636,48 @@ export default function Profile() {
                         </div>
                         <h3 className="text-2xl font-black text-slate-900 mb-2">لم تنشر أي وظائف</h3>
                         <p className="text-slate-500 font-medium">هل تبحث عن موظفين؟ ابدأ بنشر إعلان وظيفي الآن</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === 'bookings' && (
+                  <div className="space-y-6">
+                    {(userBookings?.length || 0) > 0 ? (
+                      userBookings.map(booking => (
+                        <div key={booking.id} className="bg-white p-6 rounded-[2rem] border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+                          <div className="flex items-center gap-4">
+                            <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600">
+                              <Calendar className="w-8 h-8" />
+                            </div>
+                            <div>
+                              <h4 className="font-black text-lg text-slate-900">{booking.booking_items?.title}</h4>
+                              <p className="text-slate-500 text-sm font-bold">
+                                {new Date(booking.start_date).toLocaleDateString('ar-EG')}
+                                {booking.end_date && ` - ${new Date(booking.end_date).toLocaleDateString('ar-EG')}`}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div className="text-right">
+                              <div className="text-blue-600 font-black">{booking.total_price} ج.م</div>
+                              <div className={`text-xs font-black px-3 py-1 rounded-full ${
+                                booking.status === 'confirmed' ? 'bg-green-50 text-green-600' : 
+                                booking.status === 'pending' ? 'bg-yellow-50 text-yellow-600' : 'bg-red-50 text-red-600'
+                              }`}>
+                                {booking.status === 'confirmed' ? 'مؤكد' : booking.status === 'pending' ? 'قيد الانتظار' : 'ملغي'}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="bg-white p-20 rounded-[2.5rem] border border-slate-200 text-center shadow-sm">
+                        <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                          <Calendar className="w-12 h-12 text-slate-200" />
+                        </div>
+                        <h3 className="text-2xl font-black text-slate-900 mb-2">لا توجد حجوزات</h3>
+                        <p className="text-slate-500 font-medium">ابدأ بحجز خدماتك المفضلة الآن</p>
                       </div>
                     )}
                   </div>

@@ -1,5 +1,5 @@
 {
   "name": "كفراوي بوك",
   "description": "Modern authentication UI for Kafrawy super app",
-  "requestFramePermissions": []
+  "requestFramePermissions": ["geolocation", "camera", "microphone"]
 }

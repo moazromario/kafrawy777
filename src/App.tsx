@@ -26,13 +26,26 @@ import AddJob from './components/AddJob';
 import JobApplications from './components/JobApplications';
 import Islamiat from './components/Islamiat/Islamiat';
 import DesignShowcase from './components/Islamiat/DesignShowcase';
+import ServicesHome from './pages/Services/ServicesHome';
+import ProviderList from './pages/Services/ProviderList';
+import ProviderProfile from './pages/Services/ProviderProfile';
+import RegisterProvider from './pages/Services/RegisterProvider';
+import AddService from './pages/Services/AddService';
+import AllReviews from './pages/Services/AllReviews';
+import BookingHome from './pages/Bookings/BookingHome';
+import BookingDetails from './pages/Bookings/BookingDetails';
+import WalletPage from './pages/Bookings/WalletPage';
+import AdminDashboard from './pages/Admin/AdminDashboard';
 
 import { ErrorBoundary } from './components/ErrorBoundary';
+
+import { Toaster } from 'sonner';
 
 export default function App() {
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-slate-100 text-slate-900 font-sans" dir="rtl">
+        <Toaster position="top-center" richColors />
         <AuthProvider>
           <CommunityProvider>
             <BrowserRouter>
@@ -61,6 +74,20 @@ export default function App() {
                   <Route path="/chat" element={<Chat />} />
                   <Route path="/islamiat" element={<Islamiat />} />
                   <Route path="/islamiat/showcase" element={<DesignShowcase />} />
+                  
+                  {/* Services Module Routes */}
+                  <Route path="/services" element={<ServicesHome />} />
+                  <Route path="/services/list" element={<ProviderList />} />
+                  <Route path="/services/provider/:id" element={<ProviderProfile />} />
+                  <Route path="/services/register" element={<RegisterProvider />} />
+                  <Route path="/services/add" element={<AddService />} />
+                  <Route path="/services/reviews/:id" element={<AllReviews />} />
+                  
+                  {/* Booking Module Routes */}
+                  <Route path="/bookings" element={<BookingHome />} />
+                  <Route path="/bookings/:id" element={<BookingDetails />} />
+                  <Route path="/wallet" element={<WalletPage />} />
+                  <Route path="/admin" element={<AdminDashboard />} />
                 </Route>
               </Routes>
             </BrowserRouter>

@@ -53,7 +53,7 @@ export default function Auth() {
     <div className="min-h-screen bg-slate-100 flex flex-col justify-center items-center p-4" dir="rtl">
       <div className="text-center mb-8">
         <h1 className="text-5xl font-black text-blue-600 tracking-tighter mb-2">كفراوي</h1>
-        <p className="text-xl text-slate-700 font-medium">تواصل مع أهلك وناسك في كفر الشيخ</p>
+        <p className="text-xl text-slate-700 font-medium">تواصل مع أهلك وناسك في كفر البطيخ</p>
       </div>
 
       <div className="bg-white p-6 md:p-8 rounded-xl shadow-lg w-full max-w-md">

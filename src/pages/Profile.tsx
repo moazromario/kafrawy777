@@ -60,11 +60,11 @@ export default function Profile() {
           </div>
           <div className="flex items-center gap-3 text-slate-700 text-lg">
             <GraduationCap className="w-6 h-6 text-slate-400" />
-            <span>درس في <strong>جامعة كفر الشيخ</strong></span>
+            <span>درس في <strong>جامعة كفر البطيخ</strong></span>
           </div>
           <div className="flex items-center gap-3 text-slate-700 text-lg">
             <MapPin className="w-6 h-6 text-slate-400" />
-            <span>يعيش في <strong>كفر الشيخ</strong></span>
+            <span>يعيش في <strong>كفر البطيخ</strong></span>
           </div>
           <div className="flex items-center gap-3 text-slate-700 text-lg">
             <Clock className="w-6 h-6 text-slate-400" />

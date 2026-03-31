@@ -1,6 +1,22 @@
 import React from 'react';
-import { Home, Store, Briefcase, MessageCircle, User, Search, Bell, Menu } from 'lucide-react';
+import { Home, Store, Briefcase, MessageCircle, User, Search, Bell, Menu, Wrench } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+
+const WatermelonLogo = () => (
+  <div className="relative w-8 h-4 md:w-10 md:h-5 overflow-hidden">
+    {/* Rind (Green) */}
+    <div className="absolute inset-0 bg-emerald-600 rounded-b-full"></div>
+    {/* White layer */}
+    <div className="absolute inset-[1px] md:inset-[2px] bg-white rounded-b-full"></div>
+    {/* Flesh (Red) */}
+    <div className="absolute inset-[3px] md:inset-[4px] bg-rose-500 rounded-b-full flex justify-center items-start pt-0.5 gap-0.5 md:gap-1">
+      {/* Seeds */}
+      <div className="w-0.5 h-0.5 md:w-1 md:h-1 bg-slate-900 rounded-full mt-0.5"></div>
+      <div className="w-0.5 h-0.5 md:w-1 md:h-1 bg-slate-900 rounded-full"></div>
+      <div className="w-0.5 h-0.5 md:w-1 md:h-1 bg-slate-900 rounded-full mt-0.5"></div>
+    </div>
+  </div>
+);
 
 export default function KafrawyLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -39,8 +55,9 @@ export default function KafrawyLayout({ children }: { children: React.ReactNode 
       {/* Top Navbar (Desktop & Mobile) */}
       <header className="sticky top-0 z-50 bg-white shadow-sm h-14 md:h-16 flex items-center justify-between px-4">
         <div className="flex items-center gap-2">
-          <Link to="/" className="text-2xl md:text-3xl font-black text-blue-600 tracking-tighter">
-            كفراوي
+          <Link to="/" className="flex items-center gap-2">
+            <WatermelonLogo />
+            <span className="text-2xl md:text-3xl font-black text-blue-600 tracking-tighter">كفراوي</span>
           </Link>
           <div className="hidden md:flex items-center bg-slate-100 rounded-full px-3 py-2 ms-2">
             <Search className="w-5 h-5 text-slate-500" />
@@ -56,6 +73,7 @@ export default function KafrawyLayout({ children }: { children: React.ReactNode 
         <div className="hidden md:flex items-center justify-center flex-1 h-full max-w-2xl px-12">
           <DesktopNavTab to="/" icon={<Home />} active={location.pathname === '/'} />
           <DesktopNavTab to="/marketplace" icon={<Store />} active={location.pathname.startsWith('/marketplace')} />
+          <DesktopNavTab to="/services" icon={<Wrench />} active={location.pathname.startsWith('/services')} />
           <DesktopNavTab to="/jobs" icon={<Briefcase />} active={location.pathname.startsWith('/jobs')} />
           <DesktopNavTab to="/chat" icon={<MessageCircle />} active={location.pathname.startsWith('/chat')} />
         </div>
@@ -86,6 +104,7 @@ export default function KafrawyLayout({ children }: { children: React.ReactNode 
       <nav className="fixed bottom-0 w-full bg-white border-t border-slate-200 flex justify-around items-center h-14 md:hidden z-50 pb-safe">
         <NavItem to="/" icon={<Home />} label="الرئيسية" active={location.pathname === '/'} />
         <NavItem to="/marketplace" icon={<Store />} label="السوق" active={location.pathname.startsWith('/marketplace')} />
+        <NavItem to="/services" icon={<Wrench />} label="الخدمات" active={location.pathname.startsWith('/services')} />
         <NavItem to="/jobs" icon={<Briefcase />} label="الوظائف" active={location.pathname.startsWith('/jobs')} />
         <NavItem to="/chat" icon={<MessageCircle />} label="الرسائل" active={location.pathname.startsWith('/chat')} />
         <NavItem to="/profile" icon={<User />} label="حسابي" active={location.pathname === '/profile'} />

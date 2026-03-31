@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Users, PlusSquare, Bell, Menu, Search, MessageCircle, Store, Briefcase, Moon } from 'lucide-react';
+import { Home, Users, PlusSquare, Bell, Menu, Search, MessageCircle, Store, Briefcase, Moon, Wrench, Calendar, Wallet, LayoutDashboard } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
@@ -24,6 +24,10 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           <NavTab to="/feed" icon={<Home />} active={location.pathname === '/feed'} />
           <NavTab to="/friends" icon={<Users />} active={location.pathname === '/friends'} />
           <NavTab to="/marketplace" icon={<Store />} active={location.pathname.startsWith('/marketplace')} />
+          <NavTab to="/services" icon={<Wrench />} active={location.pathname.startsWith('/services')} />
+          <NavTab to="/bookings" icon={<Calendar />} active={location.pathname.startsWith('/bookings')} />
+          <NavTab to="/wallet" icon={<Wallet />} active={location.pathname === '/wallet'} />
+          <NavTab to="/admin" icon={<LayoutDashboard />} active={location.pathname === '/admin'} />
           <NavTab to="/jobs" icon={<Briefcase />} active={location.pathname.startsWith('/jobs')} />
           <NavTab to="/islamiat" icon={<Moon />} active={location.pathname === '/islamiat'} />
         </div>
@@ -57,8 +61,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       {/* Bottom Navigation (Mobile) */}
       <nav className="fixed bottom-0 w-full bg-white border-t border-slate-200 flex justify-around items-center h-16 md:hidden z-50">
         <NavItem to="/feed" icon={<Home />} active={location.pathname === '/feed'} />
-        <NavItem to="/friends" icon={<Users />} active={location.pathname === '/friends'} />
         <NavItem to="/marketplace" icon={<Store />} active={location.pathname.startsWith('/marketplace')} />
+        <NavItem to="/bookings" icon={<Calendar />} active={location.pathname.startsWith('/bookings')} />
+        <NavItem to="/services" icon={<Wrench />} active={location.pathname.startsWith('/services')} />
         <NavItem to="/islamiat" icon={<Moon />} active={location.pathname === '/islamiat'} />
         <NavItem to="/profile" icon={<Menu />} active={location.pathname === '/profile'} />
       </nav>
