@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   ArrowRight, Star, MapPin, Phone, MessageCircle, 
   CheckCircle, Share2, Heart, Loader2, AlertCircle,
-  Briefcase, Info, ShieldCheck, Plus, ExternalLink
+  Briefcase, Info, ShieldCheck, Plus, ExternalLink, Image as ImageIcon
 } from 'lucide-react';
 import { servicesApi, ServiceProvider, Service, Review } from '../../services/servicesApi';
 import { useAuth } from '../../context/AuthContext';
@@ -195,21 +195,54 @@ const ProviderProfile: React.FC = () => {
         {/* Details Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
-            {/* About Section */}
+            {/* Experience Section */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-100"
             >
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
-                  <Info size={20} />
+                <div className="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
+                  <Briefcase size={20} />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900">عن مقدم الخدمة</h3>
+                <h3 className="text-xl font-bold text-slate-900">الخبرات والمهارات</h3>
               </div>
-              <p className="text-slate-600 leading-relaxed text-lg">
-                {provider.description || 'لا يوجد وصف متاح حالياً.'}
-              </p>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl">
+                  <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                  <p className="text-slate-700 font-medium">أكثر من 10 سنوات خبرة في مجال {provider.category}</p>
+                </div>
+                <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl">
+                  <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                  <p className="text-slate-700 font-medium">حاصل على شهادات معتمدة في {provider.title}</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Portfolio Section */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-100"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-pink-50 text-pink-600 rounded-xl flex items-center justify-center">
+                  <ImageIcon size={20} />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900">معرض الأعمال</h3>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="aspect-square bg-slate-200 rounded-2xl overflow-hidden">
+                    <img 
+                      src={`https://picsum.photos/seed/${provider.id}-${i}/400/400`} 
+                      alt="عمل سابق" 
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                ))}
+              </div>
             </motion.div>
 
             {/* Services Section */}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useNavigate, Link, useLocation, Outlet } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, Calendar, CreditCard, Wallet, 
   Settings, LogOut, Bell, Shield, Activity, 
@@ -18,7 +18,7 @@ const menuItems = [
   { id: 'settings', label: 'الإعدادات العامة', icon: Settings, path: '/admin/settings', superOnly: true },
 ];
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [admin, setAdmin] = useState<any>(null);
@@ -162,7 +162,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
-            {children}
+            <Outlet />
           </motion.div>
         </div>
       </main>

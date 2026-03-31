@@ -3,6 +3,7 @@ import { createServer as createViteServer } from "vite";
 import path from "path";
 import { createClient } from "@supabase/supabase-js";
 import dotenv from "dotenv";
+import categoriesRouter from "./server/routes/categories";
 
 dotenv.config();
 
@@ -13,7 +14,7 @@ const PORT = 3000;
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://qbplkookkahsbqoflafy.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFicGxrb29ra2Foc2Jxb2ZsYWZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2NTQ3NjIsImV4cCI6MjA5MDIzMDc2Mn0.docRw9nhwMSfw7Ol4T06pQAsRahWbqXLECJ0Bv0Uemw';
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Bootstrap Admin
 async function bootstrapAdmin() {
@@ -35,6 +36,8 @@ async function bootstrapAdmin() {
 app.use(express.json());
 
 // API Routes
+app.use("/api/categories", categoriesRouter);
+
 // 1. Booking Items
 app.get("/api/booking-items", async (req, res) => {
   const { data, error } = await supabase.from("booking_items").select("*");

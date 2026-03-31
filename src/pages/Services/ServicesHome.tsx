@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Plus, Briefcase, Star, Search } from 'lucide-react';
+import { Plus, Briefcase, Star, Search, Car } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import CategoryGrid from '../../components/Services/CategoryGrid';
 import SearchBar from '../../components/Services/SearchBar';
@@ -51,47 +51,64 @@ const ServicesHome: React.FC = () => {
         <div className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-slate-900">الأقسام الرئيسية</h2>
-            <Link to="/services/list" className="text-blue-600 font-bold hover:underline">عرض الكل</Link>
+            <Link to="/categories" className="text-blue-600 font-bold hover:underline">عرض الكل (النظام الشامل)</Link>
           </div>
           <CategoryGrid />
         </div>
 
-        {/* Featured Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-          <motion.div
-            whileHover={{ y: -5 }}
-            className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm flex items-start gap-6 group"
-          >
-            <div className="w-16 h-16 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-              <Briefcase size={32} />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">أفضل الصنايعية</h3>
-              <p className="text-slate-500 mb-4">تصفح قائمة بأمهر الفنيين والعمال في كفر البطيخ بتقييمات حقيقية.</p>
-              <Link to="/services/list?category=صنايعية" className="text-blue-600 font-bold flex items-center gap-1 group-hover:gap-2 transition-all">
-                استكشف الآن
-                <span className="text-lg">←</span>
-              </Link>
-            </div>
-          </motion.div>
+          {/* Featured Section */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <motion.div
+              whileHover={{ y: -5 }}
+              className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm flex items-start gap-6 group"
+            >
+              <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <Car size={32} />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">كفراوي جو</h3>
+                <p className="text-slate-500 mb-4">احجز رحلتك داخل كفر البطيخ بأمان وسرعة.</p>
+                <Link to="/kafrawy-go" className="text-blue-600 font-bold flex items-center gap-1 group-hover:gap-2 transition-all">
+                  احجز الآن
+                  <span className="text-lg">←</span>
+                </Link>
+              </div>
+            </motion.div>
 
-          <motion.div
-            whileHover={{ y: -5 }}
-            className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm flex items-start gap-6 group"
-          >
-            <div className="w-16 h-16 bg-yellow-50 text-yellow-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-              <Star size={32} />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">الأعلى تقييماً</h3>
-              <p className="text-slate-500 mb-4">اكتشف مقدمي الخدمات الذين حصلوا على أعلى التقييمات من أهالي كفر البطيخ.</p>
-              <Link to="/services/list?minRating=4" className="text-blue-600 font-bold flex items-center gap-1 group-hover:gap-2 transition-all">
-                شاهد القائمة
-                <span className="text-lg">←</span>
-              </Link>
-            </div>
-          </motion.div>
-        </div>
+            <motion.div
+              whileHover={{ y: -5 }}
+              className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm flex items-start gap-6 group"
+            >
+              <div className="w-16 h-16 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <Briefcase size={32} />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">أفضل الصنايعية</h3>
+                <p className="text-slate-500 mb-4">تصفح قائمة بأمهر الفنيين والعمال في كفر البطيخ بتقييمات حقيقية.</p>
+                <Link to="/services/list?category=صنايعية" className="text-blue-600 font-bold flex items-center gap-1 group-hover:gap-2 transition-all">
+                  استكشف الآن
+                  <span className="text-lg">←</span>
+                </Link>
+              </div>
+            </motion.div>
+
+            <motion.div
+              whileHover={{ y: -5 }}
+              className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm flex items-start gap-6 group"
+            >
+              <div className="w-16 h-16 bg-yellow-50 text-yellow-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <Star size={32} />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">الأعلى تقييماً</h3>
+                <p className="text-slate-500 mb-4">اكتشف مقدمي الخدمات الذين حصلوا على أعلى التقييمات من أهالي كفر البطيخ.</p>
+                <Link to="/services/list?minRating=4" className="text-blue-600 font-bold flex items-center gap-1 group-hover:gap-2 transition-all">
+                  شاهد القائمة
+                  <span className="text-lg">←</span>
+                </Link>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </div>
     </KafrawyLayout>

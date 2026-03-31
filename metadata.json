@@ -1,5 +1,5 @@
 {
-  "name": "كفراوي بوك",
-  "description": "Modern authentication UI for Kafrawy super app",
+  "name": "نظام كفر البطيخ للخدمات",
+  "description": "نظام حجز ودفع متكامل مع دليل خدمات ولوحة تحكم إدارية متطورة.",
   "requestFramePermissions": ["geolocation", "camera", "microphone"]
 }

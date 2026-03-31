@@ -24,7 +24,7 @@ const RegisterProvider: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<any>({
     name: user?.user_metadata?.full_name || '',
     category: 'صنايعية' as ServiceCategory,
     title: '',
@@ -32,8 +32,40 @@ const RegisterProvider: React.FC = () => {
     location: '',
     phone: '',
     whatsapp: '',
-    avatar_url: ''
+    avatar_url: '',
+    details: {} // For dynamic fields
   });
+
+  const getDynamicFields = () => {
+    switch (formData.category) {
+      case 'أطباء':
+        return [
+          { key: 'specialization', label: 'التخصص الطبي', placeholder: 'مثلاً: باطنة' },
+          { key: 'experience', label: 'سنوات الخبرة', placeholder: 'مثلاً: 10' },
+        ];
+      case 'صنايعية':
+        return [
+          { key: 'experience', label: 'سنوات الخبرة', placeholder: 'مثلاً: 5' },
+          { key: 'tools', label: 'الأدوات المتاحة', placeholder: 'مثلاً: معدات سباكة كاملة' },
+        ];
+      case 'محاسبين':
+        return [
+          { key: 'certification', label: 'الشهادات', placeholder: 'مثلاً: CPA' },
+        ];
+      case 'محامين':
+        return [
+          { key: 'specialization', label: 'التخصص القانوني', placeholder: 'مثلاً: جنائي' },
+          { key: 'license', label: 'رقم القيد', placeholder: 'مثلاً: 12345' },
+        ];
+      case 'مدرسين':
+        return [
+          { key: 'subject', label: 'المادة الدراسية', placeholder: 'مثلاً: رياضيات' },
+          { key: 'grades', label: 'المراحل الدراسية', placeholder: 'مثلاً: ابتدائي، إعدادي' },
+        ];
+      default:
+        return [];
+    }
+  };
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -130,7 +162,7 @@ const RegisterProvider: React.FC = () => {
                 <select
                   required
                   value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value as ServiceCategory })}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value as ServiceCategory, details: {} })}
                   className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all appearance-none"
                 >
                   {categories.map((cat) => (
@@ -139,6 +171,27 @@ const RegisterProvider: React.FC = () => {
                 </select>
               </div>
             </div>
+
+            {/* Dynamic Fields */}
+            {getDynamicFields().length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {getDynamicFields().map((field) => (
+                  <div key={field.key} className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 mr-2">
+                      {field.label}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.details[field.key] || ''}
+                      onChange={(e) => setFormData({ ...formData, details: { ...formData.details, [field.key]: e.target.value } })}
+                      placeholder={field.placeholder}
+                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700 mr-2 flex items-center gap-2">

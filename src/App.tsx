@@ -35,6 +35,14 @@ import AllReviews from './pages/Services/AllReviews';
 import BookingHome from './pages/Bookings/BookingHome';
 import BookingDetails from './pages/Bookings/BookingDetails';
 import WalletPage from './pages/Bookings/WalletPage';
+import KafrawyGoHome from './pages/KafrawyGo/KafrawyGoHome';
+import RequestRide from './pages/KafrawyGo/RequestRide';
+import RideMatching from './pages/KafrawyGo/RideMatching';
+import RideActive from './pages/KafrawyGo/RideActive';
+import RegisterDriver from './pages/KafrawyGo/RegisterDriver';
+import DriverDashboard from './pages/KafrawyGo/DriverDashboard';
+import DriverRideRequest from './pages/KafrawyGo/DriverRideRequest';
+import RateRide from './pages/KafrawyGo/RateRide';
 import AdminLayout from './pages/Admin/AdminLayout';
 import AdminLogin from './pages/Admin/AdminLogin';
 import AdminDashboard from './pages/Admin/AdminDashboard';
@@ -44,6 +52,7 @@ import AdminPayments from './pages/Admin/AdminPayments';
 import AdminItems from './pages/Admin/AdminItems';
 import AdminSettings from './pages/Admin/AdminSettings';
 import AdminAuditLogs from './pages/Admin/AdminAuditLogs';
+import CategoriesSystem from './pages/CategoriesSystem';
 
 import { ErrorBoundary } from './components/ErrorBoundary';
 
@@ -96,6 +105,7 @@ export default function App() {
                   <Route path="/islamiat/showcase" element={<DesignShowcase />} />
                   
                   {/* Services Module Routes */}
+                  <Route path="/categories" element={<CategoriesSystem />} />
                   <Route path="/services" element={<ServicesHome />} />
                   <Route path="/services/list" element={<ProviderList />} />
                   <Route path="/services/provider/:id" element={<ProviderProfile />} />
@@ -107,6 +117,16 @@ export default function App() {
                   <Route path="/bookings" element={<BookingHome />} />
                   <Route path="/bookings/:id" element={<BookingDetails />} />
                   <Route path="/wallet" element={<WalletPage />} />
+                  
+                  {/* Kafrawy Go Routes */}
+                  <Route path="/kafrawy-go" element={<KafrawyGoHome />} />
+                  <Route path="/kafrawy-go/request" element={<RequestRide />} />
+                  <Route path="/kafrawy-go/matching" element={<RideMatching />} />
+                  <Route path="/kafrawy-go/active" element={<RideActive />} />
+                  <Route path="/kafrawy-go/register" element={<RegisterDriver />} />
+                  <Route path="/kafrawy-go/driver-dashboard" element={<DriverDashboard />} />
+                  <Route path="/kafrawy-go/ride-request" element={<DriverRideRequest />} />
+                  <Route path="/kafrawy-go/rate" element={<RateRide />} />
                 </Route>
               </Routes>
             </BrowserRouter>
