@@ -5,7 +5,9 @@ import {
   ArrowRight, User, Briefcase, MapPin, Phone, 
   MessageCircle, Image as ImageIcon, CheckCircle, 
   Loader2, AlertCircle, Wrench, GraduationCap, 
-  Scale, Calculator, Stethoscope
+  Scale, Calculator, Stethoscope,
+  Building2, Pill, PawPrint, FlaskConical, Activity,
+  Shirt, ShoppingBag, ShoppingCart, Scissors, Dumbbell
 } from 'lucide-react';
 import { servicesApi, ServiceCategory } from '../../services/servicesApi';
 import { useAuth } from '../../context/AuthContext';
@@ -18,6 +20,18 @@ const categories: { name: ServiceCategory; icon: React.ReactNode }[] = [
   { name: 'محامين', icon: <Scale size={20} /> },
   { name: 'محاسبين', icon: <Calculator size={20} /> },
   { name: 'أطباء', icon: <Stethoscope size={20} /> },
+  { name: 'مستشفى', icon: <Building2 size={20} /> },
+  { name: 'صيدلية بشرية', icon: <Pill size={20} /> },
+  { name: 'صيدلية بيطرية', icon: <PawPrint size={20} /> },
+  { name: 'معمل تحاليل', icon: <FlaskConical size={20} /> },
+  { name: 'معمل أشعة', icon: <Activity size={20} /> },
+  { name: 'محل ملابس', icon: <Shirt size={20} /> },
+  { name: 'محل أحذية', icon: <ShoppingBag size={20} /> },
+  { name: 'سوبر ماركت', icon: <ShoppingCart size={20} /> },
+  { name: 'كوافير', icon: <Scissors size={20} /> },
+  { name: 'صالون حلاقة', icon: <Scissors size={20} /> },
+  { name: 'أدوات رياضية', icon: <Dumbbell size={20} /> },
+  { name: 'جيم', icon: <Dumbbell size={20} /> },
 ];
 
 const RegisterProvider: React.FC = () => {
@@ -61,6 +75,30 @@ const RegisterProvider: React.FC = () => {
         return [
           { key: 'subject', label: 'المادة الدراسية', placeholder: 'مثلاً: رياضيات' },
           { key: 'grades', label: 'المراحل الدراسية', placeholder: 'مثلاً: ابتدائي، إعدادي' },
+        ];
+      case 'مستشفى':
+        return [
+          { key: 'departments', label: 'الأقسام المتاحة', placeholder: 'مثلاً: طوارئ، باطنة، أطفال' },
+        ];
+      case 'صيدلية بشرية':
+      case 'صيدلية بيطرية':
+        return [
+          { key: 'delivery', label: 'خدمة التوصيل', placeholder: 'مثلاً: متاح 24 ساعة' },
+        ];
+      case 'معمل تحاليل':
+      case 'معمل أشعة':
+        return [
+          { key: 'home_visit', label: 'زيارة منزلية', placeholder: 'مثلاً: متاح لسحب العينات' },
+        ];
+      case 'كوافير':
+      case 'صالون حلاقة':
+        return [
+          { key: 'services', label: 'الخدمات المقدمة', placeholder: 'مثلاً: قص، صبغة، بروتين' },
+        ];
+      case 'جيم':
+        return [
+          { key: 'equipment', label: 'الأجهزة المتاحة', placeholder: 'مثلاً: أجهزة كارديو، أوزان حرة' },
+          { key: 'trainers', label: 'المدربين', placeholder: 'مثلاً: مدربين معتمدين' },
         ];
       default:
         return [];

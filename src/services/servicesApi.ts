@@ -5,7 +5,24 @@ import { supabase } from '../lib/supabase';
  * Backend API Functions using Supabase
  */
 
-export type ServiceCategory = 'صنايعية' | 'مدرسين' | 'محامين' | 'محاسبين' | 'أطباء';
+export type ServiceCategory = 
+  | 'صنايعية' 
+  | 'مدرسين' 
+  | 'محامين' 
+  | 'محاسبين' 
+  | 'أطباء'
+  | 'مستشفى'
+  | 'صيدلية بشرية'
+  | 'صيدلية بيطرية'
+  | 'معمل تحاليل'
+  | 'معمل أشعة'
+  | 'محل ملابس'
+  | 'محل أحذية'
+  | 'سوبر ماركت'
+  | 'كوافير'
+  | 'صالون حلاقة'
+  | 'أدوات رياضية'
+  | 'جيم';
 
 export interface ServiceProvider {
   id: string;
