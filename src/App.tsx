@@ -35,7 +35,15 @@ import AllReviews from './pages/Services/AllReviews';
 import BookingHome from './pages/Bookings/BookingHome';
 import BookingDetails from './pages/Bookings/BookingDetails';
 import WalletPage from './pages/Bookings/WalletPage';
+import AdminLayout from './pages/Admin/AdminLayout';
+import AdminLogin from './pages/Admin/AdminLogin';
 import AdminDashboard from './pages/Admin/AdminDashboard';
+import AdminUsers from './pages/Admin/AdminUsers';
+import AdminBookings from './pages/Admin/AdminBookings';
+import AdminPayments from './pages/Admin/AdminPayments';
+import AdminItems from './pages/Admin/AdminItems';
+import AdminSettings from './pages/Admin/AdminSettings';
+import AdminAuditLogs from './pages/Admin/AdminAuditLogs';
 
 import { ErrorBoundary } from './components/ErrorBoundary';
 
@@ -57,6 +65,18 @@ export default function App() {
                 <Route path="/register" element={<Register />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 
+                {/* Admin Routes */}
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="users" element={<AdminUsers />} />
+                  <Route path="bookings" element={<AdminBookings />} />
+                  <Route path="payments" element={<AdminPayments />} />
+                  <Route path="items" element={<AdminItems />} />
+                  <Route path="settings" element={<AdminSettings />} />
+                  <Route path="audit" element={<AdminAuditLogs />} />
+                </Route>
+
                 {/* Protected Routes */}
                 <Route element={<ProtectedRoute />}>
                   <Route path="/" element={<Navigate to="/feed" replace />} />
@@ -87,7 +107,6 @@ export default function App() {
                   <Route path="/bookings" element={<BookingHome />} />
                   <Route path="/bookings/:id" element={<BookingDetails />} />
                   <Route path="/wallet" element={<WalletPage />} />
-                  <Route path="/admin" element={<AdminDashboard />} />
                 </Route>
               </Routes>
             </BrowserRouter>

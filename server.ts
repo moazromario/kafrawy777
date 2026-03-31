@@ -15,6 +15,23 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SU
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Bootstrap Admin
+async function bootstrapAdmin() {
+  try {
+    const { data: existing } = await supabase.from('admins').select('id').eq('username', 'superadmin').single();
+    if (!existing) {
+      console.log('Bootstrapping default super admin...');
+      await supabase.from('admins').insert({
+        username: 'superadmin',
+        password_hash: 'Mdhg0109022901@#$',
+        role: 'super_admin'
+      });
+    }
+  } catch (err) {
+    console.error('Error bootstrapping admin:', err);
+  }
+}
+
 app.use(express.json());
 
 // API Routes
@@ -116,24 +133,198 @@ app.post("/api/bookings", async (req, res) => {
   res.json(booking);
 });
 
-// 5. Admin Stats
-app.get("/api/admin/stats", async (req, res) => {
-  const { data: bookings } = await supabase.from("bookings").select("total_price, created_at, status");
-  const { data: users } = await supabase.from("profiles").select("count");
+// --- Admin Middleware ---
+const adminAuth = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const adminId = req.headers['x-admin-id'];
+  if (!adminId) return res.status(401).json({ error: "غير مصرح لك بالدخول" });
   
-  // Aggregate stats
-  const totalRevenue = bookings?.reduce((acc, b) => acc + (b.status === 'confirmed' ? b.total_price : 0), 0);
+  const { data: admin } = await supabase.from('admins').select('*').eq('id', adminId).single();
+  if (!admin) return res.status(401).json({ error: "غير مصرح لك بالدخول" });
   
-  res.json({
-    totalBookings: bookings?.length || 0,
-    totalRevenue,
-    totalUsers: users?.length || 0,
-    bookingsByDay: [] // Simplified for now
+  (req as any).admin = admin;
+  next();
+};
+
+const superAdminOnly = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if ((req as any).admin.role !== 'super_admin') {
+    return res.status(403).json({ error: "هذه الصلاحية للمدير العام فقط" });
+  }
+  next();
+};
+
+const logAudit = async (adminId: string, action: string, type: string, id: string, oldVal: any = null, newVal: any = null) => {
+  await supabase.from('audit_logs').insert({
+    admin_id: adminId,
+    action,
+    entity_type: type,
+    entity_id: id,
+    old_value: oldVal,
+    new_value: newVal
   });
+};
+
+// --- Admin Endpoints ---
+
+// Admin Login
+app.post("/api/admin/login", async (req, res) => {
+  const { username, password } = req.body;
+  
+  try {
+    const { data: admin, error } = await supabase.from('admins').select('*').eq('username', username).single();
+    
+    if (error) {
+      console.error('Login Error (Supabase):', error);
+      if (error.code === 'PGRST116') { // Record not found
+         return res.status(401).json({ error: "اسم المستخدم غير موجود. تأكد من تشغيل كود SQL وإعادة تشغيل السيرفر." });
+      }
+      return res.status(500).json({ error: `خطأ في قاعدة البيانات: ${error.message}` });
+    }
+
+    const success = admin && admin.password_hash === password;
+    
+    try {
+      await supabase.from('admin_login_attempts').insert({
+        username,
+        ip_address: req.ip,
+        success
+      });
+    } catch (e) {
+      console.error('Failed to log attempt:', e);
+    }
+
+    if (!success) return res.status(401).json({ error: "كلمة المرور غير صحيحة" });
+    
+    res.json({ admin });
+  } catch (err: any) {
+    console.error('Unexpected Login Error:', err);
+    res.status(500).json({ error: "حدث خطأ غير متوقع أثناء تسجيل الدخول" });
+  }
+});
+
+// Admin Stats
+app.get("/api/admin/stats", adminAuth, async (req, res) => {
+  const [bookings, revenue, users, items] = await Promise.all([
+    supabase.from('bookings').select('*', { count: 'exact', head: true }),
+    supabase.from('payments').select('amount').eq('status', 'completed').eq('type', 'payment'),
+    supabase.from('profiles').select('*', { count: 'exact', head: true }),
+    supabase.from('booking_items').select('*', { count: 'exact', head: true })
+  ]);
+
+  const totalRevenue = revenue.data?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
+
+  res.json({
+    totalBookings: bookings.count,
+    totalRevenue,
+    totalUsers: users.count,
+    totalItems: items.count
+  });
+});
+
+// User Management
+app.get("/api/admin/users", adminAuth, async (req, res) => {
+  const { data } = await supabase.from('profiles').select('*, wallets(balance)').order('created_at', { ascending: false });
+  res.json(data);
+});
+
+app.patch("/api/admin/users/:id", adminAuth, async (req, res) => {
+  const { is_active, role } = req.body;
+  const { data: oldUser } = await supabase.from('profiles').select('*').eq('id', req.params.id).single();
+  
+  const { data, error } = await supabase.from('profiles').update({ is_active, role }).eq('id', req.params.id).select().single();
+  if (error) return res.status(400).json({ error: error.message });
+  
+  await logAudit((req as any).admin.id, 'UPDATE_USER', 'profile', req.params.id, oldUser, data);
+  res.json(data);
+});
+
+// Booking Management
+app.get("/api/admin/bookings", adminAuth, async (req, res) => {
+  const { data } = await supabase.from('bookings').select('*, profiles(full_name), booking_items(title)').order('created_at', { ascending: false });
+  res.json(data);
+});
+
+app.patch("/api/admin/bookings/:id", adminAuth, async (req, res) => {
+  const { status } = req.body;
+  const { data: oldBooking } = await supabase.from('bookings').select('*').eq('id', req.params.id).single();
+  
+  const { data, error } = await supabase.from('bookings').update({ status }).eq('id', req.params.id).select().single();
+  if (error) return res.status(400).json({ error: error.message });
+  
+  await logAudit((req as any).admin.id, 'UPDATE_BOOKING', 'booking', req.params.id, oldBooking, data);
+  res.json(data);
+});
+
+// Payment Management
+app.get("/api/admin/payments", adminAuth, async (req, res) => {
+  const { data } = await supabase.from('payments').select('*, profiles(full_name)').order('created_at', { ascending: false });
+  res.json(data);
+});
+
+app.patch("/api/admin/payments/:id", adminAuth, async (req, res) => {
+  const { status } = req.body;
+  const { data: payment } = await supabase.from('payments').select('*').eq('id', req.params.id).single();
+  
+  if (status === 'completed' && payment.status !== 'completed') {
+    if (payment.type === 'deposit') {
+      await supabase.rpc('increment_wallet_balance', { user_id_param: payment.user_id, amount_param: payment.amount });
+    }
+  }
+
+  const { data, error } = await supabase.from('payments').update({ status }).eq('id', req.params.id).select().single();
+  if (error) return res.status(400).json({ error: error.message });
+  
+  await logAudit((req as any).admin.id, 'UPDATE_PAYMENT', 'payment', req.params.id, payment, data);
+  res.json(data);
+});
+
+// Booking Items Management
+app.get("/api/admin/items", adminAuth, async (req, res) => {
+  const { data } = await supabase.from('booking_items').select('*').order('created_at', { ascending: false });
+  res.json(data);
+});
+
+app.post("/api/admin/items", adminAuth, async (req, res) => {
+  const { data, error } = await supabase.from('booking_items').insert(req.body).select().single();
+  if (error) return res.status(400).json({ error: error.message });
+  
+  await logAudit((req as any).admin.id, 'CREATE_ITEM', 'booking_item', data.id, null, data);
+  res.json(data);
+});
+
+app.patch("/api/admin/items/:id", adminAuth, async (req, res) => {
+  const { data: oldItem } = await supabase.from('booking_items').select('*').eq('id', req.params.id).single();
+  const { data, error } = await supabase.from('booking_items').update(req.body).eq('id', req.params.id).select().single();
+  if (error) return res.status(400).json({ error: error.message });
+  
+  await logAudit((req as any).admin.id, 'UPDATE_ITEM', 'booking_item', req.params.id, oldItem, data);
+  res.json(data);
+});
+
+// App Settings
+app.get("/api/admin/settings", adminAuth, async (req, res) => {
+  const { data } = await supabase.from('app_settings').select('*');
+  res.json(data);
+});
+
+app.post("/api/admin/settings", adminAuth, superAdminOnly, async (req, res) => {
+  const { key, value } = req.body;
+  const { data, error } = await supabase.from('app_settings').upsert({ key, value, updated_at: new Date() }).select().single();
+  if (error) return res.status(400).json({ error: error.message });
+  
+  await logAudit((req as any).admin.id, 'UPDATE_SETTINGS', 'app_setting', key, null, value);
+  res.json(data);
+});
+
+// Audit Logs
+app.get("/api/admin/audit", adminAuth, superAdminOnly, async (req, res) => {
+  const { data } = await supabase.from('audit_logs').select('*, admins(username)').order('created_at', { ascending: false });
+  res.json(data);
 });
 
 // Vite Integration
 async function startServer() {
+  await bootstrapAdmin();
+  
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },

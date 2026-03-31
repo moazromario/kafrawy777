@@ -110,3 +110,54 @@ BEGIN
   RETURN new_balance;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 9. Admin Management
+CREATE TABLE IF NOT EXISTS admins (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  username TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  role TEXT NOT NULL CHECK (role IN ('super_admin', 'admin')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS admin_login_attempts (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  username TEXT NOT NULL,
+  ip_address TEXT,
+  success BOOLEAN NOT NULL,
+  attempted_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 10. Audit Logs
+CREATE TABLE IF NOT EXISTS audit_logs (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  admin_id UUID REFERENCES admins(id) ON DELETE SET NULL,
+  action TEXT NOT NULL,
+  entity_type TEXT NOT NULL,
+  entity_id TEXT,
+  old_value JSONB,
+  new_value JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 11. App Settings
+CREATE TABLE IF NOT EXISTS app_settings (
+  key TEXT PRIMARY KEY,
+  value JSONB NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Update Profiles to include status
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+
+-- Insert Default Super Admin (Password: Mdhg0109022901@#$)
+INSERT INTO admins (username, password_hash, role)
+VALUES ('superadmin', 'Mdhg0109022901@#$', 'super_admin')
+ON CONFLICT (username) DO NOTHING;
+
+-- Default Settings
+INSERT INTO app_settings (key, value)
+VALUES 
+  ('general', '{"app_name": "كفراوي", "logo_url": "", "contact_email": "admin@kafrawy.com"}'),
+  ('policies', '{"terms": "شروط الخدمة...", "privacy": "سياسة الخصوصية..."}')
+ON CONFLICT (key) DO NOTHING;
