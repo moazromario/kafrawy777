@@ -3,13 +3,14 @@ import { useNavigate, Link, useLocation, Outlet } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, Calendar, CreditCard, Wallet, 
   Settings, LogOut, Bell, Shield, Activity, 
-  Menu, X, ChevronLeft, Package
+  Menu, X, ChevronLeft, Package, Car
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const menuItems = [
   { id: 'dashboard', label: 'لوحة المعلومات', icon: LayoutDashboard, path: '/admin' },
   { id: 'users', label: 'المستخدمين', icon: Users, path: '/admin/users' },
+  { id: 'drivers', label: 'كباتن كفراوي', icon: Car, path: '/admin/drivers' },
   { id: 'bookings', label: 'الحجوزات', icon: Calendar, path: '/admin/bookings' },
   { id: 'payments', label: 'المدفوعات', icon: CreditCard, path: '/admin/payments' },
   { id: 'items', label: 'الخدمات والفئات', icon: Package, path: '/admin/items' },

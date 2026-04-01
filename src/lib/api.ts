@@ -274,17 +274,39 @@ export async function fetchProfiles(query?: string) {
 
 // Fetch all friendships for a user
 export async function fetchFriendships(userId: string) {
-  const { data, error } = await supabase
+  // Fetch friendships first
+  const { data: friendships, error: friendshipsError } = await supabase
     .from('friendships')
-    .select(`
-      *,
-      user:user_id(id, full_name, avatar_url),
-      friend:friend_id(id, full_name, avatar_url)
-    `)
+    .select('*')
     .or(`user_id.eq.${userId},friend_id.eq.${userId}`);
 
-  if (error) throw error;
-  return data;
+  if (friendshipsError) throw friendshipsError;
+  if (!friendships || friendships.length === 0) return [];
+
+  // Extract all unique user IDs from the friendships
+  const profileIds = new Set<string>();
+  friendships.forEach(f => {
+    profileIds.add(f.user_id);
+    profileIds.add(f.friend_id);
+  });
+
+  // Fetch all related profiles in one query
+  const { data: profiles, error: profilesError } = await supabase
+    .from('profiles')
+    .select('id, full_name, avatar_url')
+    .in('id', Array.from(profileIds));
+
+  if (profilesError) throw profilesError;
+
+  // Create a map for quick profile lookups
+  const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+
+  // Combine the data
+  return friendships.map(f => ({
+    ...f,
+    user: profileMap.get(f.user_id) || null,
+    friend: profileMap.get(f.friend_id) || null
+  }));
 }
 
 // Send a friend request
@@ -482,16 +504,38 @@ export async function fetchUserJobs(userId: string) {
 }
 
 export async function fetchUserFriends(userId: string) {
-  const { data, error } = await supabase
+  // Fetch accepted friendships first
+  const { data: friendships, error: friendshipsError } = await supabase
     .from('friendships')
-    .select(`
-      *,
-      user:user_id(id, full_name, avatar_url, bio),
-      friend:friend_id(id, full_name, avatar_url, bio)
-    `)
+    .select('*')
     .or(`user_id.eq.${userId},friend_id.eq.${userId}`)
     .eq('status', 'accepted');
 
-  if (error) throw error;
-  return data;
+  if (friendshipsError) throw friendshipsError;
+  if (!friendships || friendships.length === 0) return [];
+
+  // Extract all unique user IDs from the friendships
+  const profileIds = new Set<string>();
+  friendships.forEach(f => {
+    profileIds.add(f.user_id);
+    profileIds.add(f.friend_id);
+  });
+
+  // Fetch all related profiles in one query
+  const { data: profiles, error: profilesError } = await supabase
+    .from('profiles')
+    .select('id, full_name, avatar_url, bio')
+    .in('id', Array.from(profileIds));
+
+  if (profilesError) throw profilesError;
+
+  // Create a map for quick profile lookups
+  const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+
+  // Combine the data
+  return friendships.map(f => ({
+    ...f,
+    user: profileMap.get(f.user_id) || null,
+    friend: profileMap.get(f.friend_id) || null
+  }));
 }

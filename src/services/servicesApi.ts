@@ -29,6 +29,7 @@ export interface ServiceProvider {
   user_id: string;
   name: string;
   category: ServiceCategory;
+  subcategory?: string;
   title: string;
   description: string;
   location: string;

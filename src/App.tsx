@@ -20,10 +20,10 @@ import ProductDetails from './components/ProductDetails';
 import AddProduct from './components/AddProduct';
 import Notifications from './components/Notifications';
 import Chat from './components/Chat';
-import Jobs from './components/Jobs';
-import JobDetails from './components/JobDetails';
-import AddJob from './components/AddJob';
-import JobApplications from './components/JobApplications';
+import Jobs from './pages/Services/Jobs/Jobs';
+import JobDetails from './pages/Services/Jobs/JobDetails';
+import AddJob from './pages/Services/Jobs/AddJob';
+import JobApplications from './pages/Services/Jobs/JobApplications';
 import Islamiat from './components/Islamiat/Islamiat';
 import DesignShowcase from './components/Islamiat/DesignShowcase';
 import ServicesHome from './pages/Services/ServicesHome';
@@ -42,11 +42,15 @@ import RideActive from './pages/KafrawyGo/RideActive';
 import RegisterDriver from './pages/KafrawyGo/RegisterDriver';
 import DriverDashboard from './pages/KafrawyGo/DriverDashboard';
 import DriverRideRequest from './pages/KafrawyGo/DriverRideRequest';
+import DriverNavigation from './pages/KafrawyGo/DriverNavigation';
+import DriverRideActive from './pages/KafrawyGo/DriverRideActive';
+import DriverEarnings from './pages/KafrawyGo/DriverEarnings';
 import RateRide from './pages/KafrawyGo/RateRide';
 import AdminLayout from './pages/Admin/AdminLayout';
 import AdminLogin from './pages/Admin/AdminLogin';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import AdminUsers from './pages/Admin/AdminUsers';
+import AdminDrivers from './pages/Admin/AdminDrivers';
 import AdminBookings from './pages/Admin/AdminBookings';
 import AdminPayments from './pages/Admin/AdminPayments';
 import AdminItems from './pages/Admin/AdminItems';
@@ -78,6 +82,7 @@ export default function App() {
                 <Route path="/admin" element={<AdminLayout />}>
                   <Route index element={<AdminDashboard />} />
                   <Route path="users" element={<AdminUsers />} />
+                  <Route path="drivers" element={<AdminDrivers />} />
                   <Route path="bookings" element={<AdminBookings />} />
                   <Route path="payments" element={<AdminPayments />} />
                   <Route path="items" element={<AdminItems />} />
@@ -94,10 +99,19 @@ export default function App() {
                   <Route path="/marketplace" element={<ProductList />} />
                   <Route path="/marketplace/item/:id" element={<ProductDetails />} />
                   <Route path="/marketplace/create" element={<AddProduct />} />
-                  <Route path="/jobs" element={<Jobs />} />
-                  <Route path="/jobs/applications" element={<JobApplications />} />
-                  <Route path="/jobs/:id" element={<JobDetails />} />
-                  <Route path="/jobs/create" element={<AddJob />} />
+                  
+                  {/* Jobs Module Routes */}
+                  <Route path="/services/jobs" element={<Jobs />} />
+                  <Route path="/services/jobs/applications" element={<JobApplications />} />
+                  <Route path="/services/jobs/:id" element={<JobDetails />} />
+                  <Route path="/services/jobs/create" element={<AddJob />} />
+                  
+                  {/* Legacy Jobs Redirects (Optional but good for UX) */}
+                  <Route path="/jobs" element={<Navigate to="/services/jobs" replace />} />
+                  <Route path="/jobs/applications" element={<Navigate to="/services/jobs/applications" replace />} />
+                  <Route path="/jobs/:id" element={<Navigate to="/services/jobs/:id" replace />} />
+                  <Route path="/jobs/create" element={<Navigate to="/services/jobs/create" replace />} />
+
                   <Route path="/notifications" element={<Notifications />} />
                   <Route path="/chat" element={<Chat />} />
                   <Route path="/islamiat" element={<Islamiat />} />
@@ -124,6 +138,9 @@ export default function App() {
                   <Route path="/kafrawy-go/register" element={<RegisterDriver />} />
                   <Route path="/kafrawy-go/driver-dashboard" element={<DriverDashboard />} />
                   <Route path="/kafrawy-go/ride-request" element={<DriverRideRequest />} />
+                  <Route path="/kafrawy-go/driver/navigation" element={<DriverNavigation />} />
+                  <Route path="/kafrawy-go/driver/active" element={<DriverRideActive />} />
+                  <Route path="/kafrawy-go/driver/earnings" element={<DriverEarnings />} />
                   <Route path="/kafrawy-go/rate" element={<RateRide />} />
                 </Route>
               </Routes>

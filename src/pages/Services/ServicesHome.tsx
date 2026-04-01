@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Plus, Briefcase, Star, Search, Car } from 'lucide-react';
+import { Plus, Briefcase, Star, Search, Car, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import CategoryGrid from '../../components/Services/CategoryGrid';
 import SearchBar from '../../components/Services/SearchBar';
@@ -51,13 +51,19 @@ const ServicesHome: React.FC = () => {
         <div className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-slate-900">الأقسام الرئيسية</h2>
-            <Link to="/categories" className="text-blue-600 font-bold hover:underline">عرض الكل (النظام الشامل)</Link>
+            <Link 
+              to="/services/list" 
+              className="flex items-center gap-1 px-4 py-2 bg-blue-50 text-blue-700 rounded-2xl font-black text-sm hover:bg-blue-100 transition-all group shadow-sm border border-blue-100/50"
+            >
+              عرض الكل (النظام الشامل)
+              <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+            </Link>
           </div>
           <CategoryGrid />
         </div>
 
           {/* Featured Section */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             <motion.div
               whileHover={{ y: -5 }}
               className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm flex items-start gap-6 group"
@@ -80,6 +86,23 @@ const ServicesHome: React.FC = () => {
               className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm flex items-start gap-6 group"
             >
               <div className="w-16 h-16 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <Briefcase size={32} />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">الوظائف</h3>
+                <p className="text-slate-500 mb-4">ابحث عن وظيفة أحلامك أو أعلن عن وظيفة شاغرة.</p>
+                <Link to="/services/jobs" className="text-blue-600 font-bold flex items-center gap-1 group-hover:gap-2 transition-all">
+                  استكشف الوظائف
+                  <span className="text-lg">←</span>
+                </Link>
+              </div>
+            </motion.div>
+
+            <motion.div
+              whileHover={{ y: -5 }}
+              className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm flex items-start gap-6 group"
+            >
+              <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <Briefcase size={32} />
               </div>
               <div>

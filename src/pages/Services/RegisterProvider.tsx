@@ -34,6 +34,19 @@ const categories: { name: ServiceCategory; icon: React.ReactNode }[] = [
   { name: 'جيم', icon: <Dumbbell size={20} /> },
 ];
 
+const subcategories: Record<string, string[]> = {
+  'صنايعية': [
+    'سباكين',
+    'نجارين',
+    'كهربائية',
+    'منجدين',
+    'نقاشين',
+    'استورجية',
+    'محارة',
+    'مبلط سيراميك'
+  ]
+};
+
 const RegisterProvider: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -41,6 +54,7 @@ const RegisterProvider: React.FC = () => {
   const [formData, setFormData] = useState<any>({
     name: user?.user_metadata?.full_name || '',
     category: 'صنايعية' as ServiceCategory,
+    subcategory: '',
     title: '',
     description: '',
     location: '',
@@ -200,7 +214,7 @@ const RegisterProvider: React.FC = () => {
                 <select
                   required
                   value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value as ServiceCategory, details: {} })}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value as ServiceCategory, subcategory: '', details: {} })}
                   className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all appearance-none"
                 >
                   {categories.map((cat) => (
@@ -208,6 +222,26 @@ const RegisterProvider: React.FC = () => {
                   ))}
                 </select>
               </div>
+
+              {subcategories[formData.category] && (
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 mr-2 flex items-center gap-2">
+                    <Briefcase size={16} className="text-blue-500" />
+                    التخصص الفرعي
+                  </label>
+                  <select
+                    required
+                    value={formData.subcategory}
+                    onChange={(e) => setFormData({ ...formData, subcategory: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all appearance-none"
+                  >
+                    <option value="">اختر التخصص الفرعي</option>
+                    {subcategories[formData.category].map((sub) => (
+                      <option key={sub} value={sub}>{sub}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
 
             {/* Dynamic Fields */}

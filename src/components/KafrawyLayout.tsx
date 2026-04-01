@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Home, Store, Briefcase, MessageCircle, User, Search, Bell, Menu, Wrench } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { toast } from 'sonner';
+import socket from '../services/socket';
 
 const WatermelonLogo = () => (
   <div className="relative w-8 h-4 md:w-10 md:h-5 overflow-hidden">
@@ -20,6 +22,68 @@ const WatermelonLogo = () => (
 
 export default function KafrawyLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
+
+  useEffect(() => {
+    // Global KafrawyGo Notifications
+    const handleNewRideRequest = (ride: any) => {
+      // Only show if not already on driver dashboard
+      if (!location.pathname.includes('/driver-dashboard')) {
+        toast.info('طلب رحلة جديد بالقرب منك!', {
+          description: `من: ${ride.pickup} إلى: ${ride.destination}`,
+          action: {
+            label: 'عرض',
+            onClick: () => window.location.href = '/kafrawy-go/driver-dashboard'
+          }
+        });
+      }
+    };
+
+    const handleRideResponse = ({ response }: any) => {
+      if (!location.pathname.includes('/matching')) {
+        toast.success('كابتن جديد قدم عرضاً لرحلتك!', {
+          description: `${response.driverName} عرض ${response.price} ج.م`,
+          action: {
+            label: 'التفاصيل',
+            onClick: () => window.location.href = '/kafrawy-go/matching'
+          }
+        });
+      }
+    };
+
+    const handleRideMatched = (ride: any) => {
+      toast.success('تم تأكيد الرحلة!', {
+        description: 'الكابتن في الطريق إليك الآن.',
+      });
+    };
+
+    const handleRideCancelled = ({ cancelledBy }: any) => {
+      toast.error('تم إلغاء الرحلة', {
+        description: cancelledBy === 'driver' ? 'قام الكابتن بإلغاء الرحلة.' : 'قام العميل بإلغاء الرحلة.'
+      });
+    };
+
+    const handleReceiveMessage = (data: any) => {
+      // Don't show toast if chat is likely open (we can't know for sure here, but we can guess based on active ride page)
+      toast('رسالة جديدة', {
+        description: data.message,
+        icon: <MessageCircle className="w-4 h-4 text-blue-500" />
+      });
+    };
+
+    socket.on('new_ride_request', handleNewRideRequest);
+    socket.on('ride_response', handleRideResponse);
+    socket.on('ride_matched', handleRideMatched);
+    socket.on('ride_cancelled', handleRideCancelled);
+    socket.on('receive_message', handleReceiveMessage);
+
+    return () => {
+      socket.off('new_ride_request', handleNewRideRequest);
+      socket.off('ride_response', handleRideResponse);
+      socket.off('ride_matched', handleRideMatched);
+      socket.off('ride_cancelled', handleRideCancelled);
+      socket.off('receive_message', handleReceiveMessage);
+    };
+  }, [location.pathname]);
 
   const NavItem = ({ to, icon, label, active }: { to: string, icon: React.ReactNode, label: string, active: boolean }) => (
     <Link 
