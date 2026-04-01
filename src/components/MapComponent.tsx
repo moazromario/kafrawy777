@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
+import MarkerClusterGroup from 'react-leaflet-markercluster';
+
+// Import CSS for Leaflet and MarkerCluster
+import 'leaflet/dist/leaflet.css';
+import 'react-leaflet-markercluster/styles';
 
 // Fix for default marker icons in Leaflet with Webpack/Vite
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -160,22 +165,24 @@ export default function MapComponent({
           </Marker>
         )}
 
-        {nearbyDrivers.map((driver, idx) => (
-          driver.lastLocation && (
-            <Marker 
-              key={driver.socketId || idx} 
-              position={[driver.lastLocation.lat, driver.lastLocation.lng]} 
-              icon={carIcon}
-            >
-              <Popup>
-                <div className="text-right font-black">
-                  <p className="text-blue-600">{driver.name}</p>
-                  <p className="text-xs text-slate-500">{driver.car}</p>
-                </div>
-              </Popup>
-            </Marker>
-          )
-        ))}
+        <MarkerClusterGroup>
+          {nearbyDrivers.map((driver, idx) => (
+            driver.lastLocation && (
+              <Marker 
+                key={driver.socketId || idx} 
+                position={[driver.lastLocation.lat, driver.lastLocation.lng]} 
+                icon={carIcon}
+              >
+                <Popup>
+                  <div className="text-right font-black">
+                    <p className="text-blue-600">{driver.name}</p>
+                    <p className="text-xs text-slate-500">{driver.car}</p>
+                  </div>
+                </Popup>
+              </Marker>
+            )
+          ))}
+        </MarkerClusterGroup>
         
         {route.length > 0 && (
           <Polyline 

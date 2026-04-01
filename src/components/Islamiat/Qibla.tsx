@@ -79,7 +79,10 @@ export default function Qibla() {
   const handleOrientation = (event: DeviceOrientationEvent) => {
     // alpha is the rotation around the z-axis (0 to 360)
     if (event.alpha !== null) {
-      setHeading(event.alpha);
+      // Only update if change is significant (e.g., > 1 degree)
+      if (Math.abs(event.alpha - heading) > 1) {
+        setHeading(event.alpha);
+      }
     }
   };
 

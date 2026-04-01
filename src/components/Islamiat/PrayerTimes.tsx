@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Clock, MapPin, Bell, BellOff, RefreshCw, 
-  Loader2, ChevronLeft, ChevronRight, Info
+  Loader2, Info, Calendar
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 
 interface Timings {
@@ -15,13 +14,24 @@ interface Timings {
   Isha: string;
 }
 
+interface HijriDate {
+  date: string;
+  format: string;
+  day: string;
+  weekday: { en: string; ar: string };
+  month: { en: string; ar: string };
+  year: string;
+}
+
 export default function PrayerTimes() {
   const [timings, setTimings] = useState<Timings | null>(null);
+  const [hijriDate, setHijriDate] = useState<HijriDate | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [locationName, setLocationName] = useState('جاري تحديد الموقع...');
   const [nextPrayer, setNextPrayer] = useState<{ name: string, time: string, remaining: string } | null>(null);
   const [notifications, setNotifications] = useState<string[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     getUserLocation();
@@ -29,7 +39,7 @@ export default function PrayerTimes() {
       if (timings) calculateNextPrayer(timings);
     }, 60000);
     return () => clearInterval(interval);
-  }, [timings]);
+  }, []);
 
   const getUserLocation = () => {
     setLoading(true);
@@ -42,8 +52,6 @@ export default function PrayerTimes() {
         },
         (err) => {
           console.error('Geolocation error:', err);
-          toast.error(`خطأ في تحديد الموقع الجغرافي: ${err.message || 'يرجى تفعيل الوصول للموقع'}`);
-          // Fallback to Cairo if permission denied
           fetchPrayerTimesByCity('Cairo', 'Egypt');
         }
       );
@@ -53,30 +61,66 @@ export default function PrayerTimes() {
   };
 
   const fetchPrayerTimesByCoords = async (lat: number, lng: number) => {
+    const today = new Date().toISOString().split('T')[0];
+    const cacheKey = `prayerTimes_${lat}_${lng}`;
+    const cached = localStorage.getItem(cacheKey);
+    
+    if (cached) {
+      const { data, date } = JSON.parse(cached);
+      if (date === today) {
+        setTimings(data.timings);
+        setHijriDate(data.date.hijri);
+        setLocationName(data.meta.timezone.split('/')[1] || 'موقعك الحالي');
+        calculateNextPrayer(data.timings);
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       const response = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lng}&method=5`);
       if (!response.ok) throw new Error();
       const data = await response.json();
+      localStorage.setItem(cacheKey, JSON.stringify({ data: data.data, date: today }));
       setTimings(data.data.timings);
+      setHijriDate(data.data.date.hijri);
       setLocationName(data.data.meta.timezone.split('/')[1] || 'موقعك الحالي');
       calculateNextPrayer(data.data.timings);
     } catch (err) {
-      setError('تعذر جلب مواقيت الصلاة. يرجى التحقق من اتصالك بالإنترنت.');
+      setError('تعذر جلب مواقيت الصلاة.');
     } finally {
       setLoading(false);
     }
   };
 
   const fetchPrayerTimesByCity = async (city: string, country: string) => {
+    const today = new Date().toISOString().split('T')[0];
+    const cacheKey = `prayerTimes_${city}`;
+    const cached = localStorage.getItem(cacheKey);
+    
+    if (cached) {
+      const { data, date } = JSON.parse(cached);
+      if (date === today) {
+        setTimings(data.timings);
+        setHijriDate(data.date.hijri);
+        setLocationName(`${city}، ${country}`);
+        calculateNextPrayer(data.timings);
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       const response = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${city}&country=${country}&method=5`);
       if (!response.ok) throw new Error();
       const data = await response.json();
+      localStorage.setItem(cacheKey, JSON.stringify({ data: data.data, date: today }));
       setTimings(data.data.timings);
+      setHijriDate(data.data.date.hijri);
       setLocationName(`${city}، ${country}`);
       calculateNextPrayer(data.data.timings);
     } catch (err) {
-      setError('تعذر جلب مواقيت الصلاة. يرجى التحقق من اتصالك بالإنترنت.');
+      setError('تعذر جلب مواقيت الصلاة.');
     } finally {
       setLoading(false);
     }
@@ -107,12 +151,16 @@ export default function PrayerTimes() {
           ...prayer, 
           remaining: `متبقي ${h > 0 ? `${h} ساعة و ` : ''}${m} دقيقة`
         };
+        
+        // Check if it's time to play Adhan
+        if (diff === 0 && notifications.includes(prayer.name)) {
+          playAdhan();
+        }
         break;
       }
     }
 
     if (!next) {
-      // Next is Fajr tomorrow
       const [hours, minutes] = prayers[0].time.split(':').map(Number);
       const prayerTime = (hours + 24) * 60 + minutes;
       const diff = prayerTime - currentTime;
@@ -124,6 +172,12 @@ export default function PrayerTimes() {
       };
     }
     setNextPrayer(next);
+  };
+
+  const playAdhan = () => {
+    if (audioRef.current) {
+      audioRef.current.play().catch(console.error);
+    }
   };
 
   const toggleNotification = (prayer: string) => {
@@ -158,6 +212,16 @@ export default function PrayerTimes() {
 
   return (
     <div className="space-y-8">
+      <audio ref={audioRef} src="https://www.islamcan.com/audio/adhan/azan1.mp3" />
+      
+      {/* Hijri Date */}
+      {hijriDate && (
+        <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-center gap-2 text-slate-600 font-bold">
+          <Calendar className="w-5 h-5 text-emerald-600" />
+          <span>{hijriDate.day} {hijriDate.month.ar} {hijriDate.year} هـ</span>
+        </div>
+      )}
+
       {/* Next Prayer Card */}
       {nextPrayer && (
         <div className="bg-gradient-to-br from-emerald-600 to-teal-700 p-8 rounded-[3rem] shadow-2xl shadow-emerald-200 text-white relative overflow-hidden">
@@ -169,7 +233,6 @@ export default function PrayerTimes() {
             <h2 className="text-5xl font-black mb-4">{nextPrayer.name}</h2>
             <div className="text-6xl font-black tracking-tighter mb-6 flex items-baseline gap-2">
               {nextPrayer.time}
-              <span className="text-xl font-bold text-emerald-200">ص</span>
             </div>
             
             <div className="flex items-center gap-2 bg-white/20 backdrop-blur-md px-6 py-2 rounded-full border border-white/20">
@@ -218,7 +281,6 @@ export default function PrayerTimes() {
                 </div>
                 <div>
                   <p className={`text-lg font-black ${nextPrayer?.name === name ? 'text-emerald-700' : 'text-slate-800'}`}>{name}</p>
-                  <p className="text-xs text-slate-400 font-bold">مواقيت كفراوي</p>
                 </div>
               </div>
               
@@ -237,19 +299,6 @@ export default function PrayerTimes() {
               </div>
             </div>
           ))}
-        </div>
-      </div>
-
-      {/* Info Card */}
-      <div className="bg-blue-50 p-6 rounded-[2.5rem] border border-blue-100 flex items-start gap-4">
-        <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-sm flex-shrink-0">
-          <Info className="w-6 h-6" />
-        </div>
-        <div>
-          <h4 className="text-blue-900 font-black mb-1">تنبيهات الصلاة</h4>
-          <p className="text-blue-700 text-sm font-medium leading-relaxed">
-            تأكد من تفعيل الإشعارات في إعدادات هاتفك لتصلك تنبيهات الأذان في وقتها الصحيح.
-          </p>
         </div>
       </div>
     </div>

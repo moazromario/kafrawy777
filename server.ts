@@ -9,6 +9,8 @@ import path from "path";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import dotenv from "dotenv";
 
+import marketplaceRoutes from "./server/routes/marketplaceRoutes";
+
 dotenv.config();
 
 // --- Types & Interfaces ---
@@ -300,6 +302,9 @@ async function startServer() {
   app.get("/api/drivers", (req, res) => res.json(rideManager.getOnlineDrivers()));
   
   app.get("/api/rides/active", (req, res) => res.json(rideManager.getSearchingRides()));
+
+  // Mount Marketplace Routes
+  app.use("/api/marketplace", marketplaceRoutes);
 
   // --- Socket.io Real-time Logic ---
   io.on("connection", (socket) => {

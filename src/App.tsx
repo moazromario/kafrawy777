@@ -18,6 +18,14 @@ import Feed from './components/Feed';
 import ProductList from './components/ProductList';
 import ProductDetails from './components/ProductDetails';
 import AddProduct from './components/AddProduct';
+import Cart from './components/Cart';
+import Checkout from './components/Checkout';
+import OrderTracking from './components/OrderTracking';
+import OrderCompleted from './components/OrderCompleted';
+import RegisterStore from './components/RegisterStore';
+import SellerDashboard from './components/SellerDashboard';
+import ManageProducts from './components/ManageProducts';
+import SellerOrderDetails from './components/SellerOrderDetails';
 import Notifications from './components/Notifications';
 import Chat from './components/Chat';
 import Jobs from './pages/Services/Jobs/Jobs';
@@ -99,6 +107,16 @@ export default function App() {
                   <Route path="/marketplace" element={<ProductList />} />
                   <Route path="/marketplace/item/:id" element={<ProductDetails />} />
                   <Route path="/marketplace/create" element={<AddProduct />} />
+                  <Route path="/marketplace/cart" element={<Cart />} />
+                  <Route path="/marketplace/checkout" element={<Checkout />} />
+                  <Route path="/marketplace/track/:id" element={<OrderTracking />} />
+                  <Route path="/marketplace/completed/:id" element={<OrderCompleted />} />
+                  <Route path="/marketplace/register-store" element={<RegisterStore />} />
+                  <Route path="/marketplace/dashboard" element={<SellerDashboard />} />
+                  <Route path="/marketplace/manage-products" element={<ManageProducts />} />
+                  <Route path="/marketplace/seller/order/:id" element={<SellerOrderDetails />} />
+                  <Route path="/marketplace/edit/:id" element={<AddProduct />} />
+                  <Route path="/marketplace/chat" element={<Chat />} />
                   
                   {/* Jobs Module Routes */}
                   <Route path="/services/jobs" element={<Jobs />} />
