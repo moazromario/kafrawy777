@@ -452,7 +452,7 @@ export async function fetchProfile(userId: string) {
     .from('profiles')
     .select('*')
     .eq('id', userId)
-    .single();
+    .maybeSingle();
 
   if (error) throw error;
   return data;
@@ -485,7 +485,7 @@ export async function fetchUserProducts(userId: string) {
   const { data, error } = await supabase
     .from('products')
     .select('*')
-    .eq('seller_id', userId)
+    .eq('store_id', userId)
     .order('created_at', { ascending: false });
 
   if (error) throw error;

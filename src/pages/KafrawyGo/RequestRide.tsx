@@ -6,6 +6,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import socket from '../../services/socket';
 import MapComponent from '../../components/MapComponent';
 import { reverseGeocode, searchAddress } from '../../lib/geocoding';
+import { supabase } from '../../lib/supabase';
+import { toast } from 'sonner';
+import { useAuth } from '../../context/AuthContext';
 
 export default function RequestRide() {
   const navigate = useNavigate();
@@ -73,7 +76,14 @@ export default function RequestRide() {
     }
   };
 
-  const handleRequest = () => {
+  const { user } = useAuth(); // Add this
+  
+  const handleRequest = async () => {
+    if (!user) {
+      toast.error('يجب تسجيل الدخول لطلب رحلة');
+      return;
+    }
+
     const requestData = {
       pickup,
       destination,
@@ -84,19 +94,40 @@ export default function RequestRide() {
       suggestedPrice: fare,
       serviceType,
       distance,
-      duration
+      duration,
+      status: 'searching' // Ensure status is set to 'searching'
     };
 
-    // Emit the ride request to the server
+    // 1. Emit the ride request to the server (Socket.io)
     socket.emit('request_ride', requestData);
+
+    // 2. Insert into Supabase 'rides' table for Realtime fallback
+    try {
+      const { data, error } = await supabase.from('rides').insert([{
+        user_id: user.id, // Add user_id here
+        service_type: serviceType,
+        pickup_address: pickup,
+        destination_address: destination,
+        suggested_price: fare,
+        status: 'searching'
+      }]);
+      
+      if (error) throw error;
+      console.log('Ride request saved to Supabase:', data);
+    } catch (error) {
+      console.error('Error saving ride request to Supabase:', error);
+      toast.error('حدث خطأ أثناء إرسال الطلب');
+      return; // Stop navigation if saving fails
+    }
 
     navigate('/kafrawy-go/matching', { 
       state: { 
         ...requestData,
-        fare // keep for backward compatibility if needed
+        fare 
       } 
     });
   };
+
 
   const calculateRoute = async () => {
     if (pickupCoords && destinationCoords) {

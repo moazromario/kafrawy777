@@ -64,6 +64,7 @@ import AdminPayments from './pages/Admin/AdminPayments';
 import AdminItems from './pages/Admin/AdminItems';
 import AdminSettings from './pages/Admin/AdminSettings';
 import AdminAuditLogs from './pages/Admin/AdminAuditLogs';
+import AdminNotifications from './pages/Admin/AdminNotifications';
 
 import { ErrorBoundary } from './components/ErrorBoundary';
 
@@ -94,6 +95,7 @@ export default function App() {
                   <Route path="bookings" element={<AdminBookings />} />
                   <Route path="payments" element={<AdminPayments />} />
                   <Route path="items" element={<AdminItems />} />
+                  <Route path="notifications" element={<AdminNotifications />} />
                   <Route path="settings" element={<AdminSettings />} />
                   <Route path="audit" element={<AdminAuditLogs />} />
                 </Route>
