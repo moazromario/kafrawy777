@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Car, DollarSign, Star, MapPin, ToggleLeft, ToggleRight, Clock, Shield, TrendingUp, Wallet, Bell, ChevronLeft, Package, Zap } from 'lucide-react';
 import KafrawyLayout from '../../components/KafrawyLayout';
 import { motion, AnimatePresence } from 'motion/react';
+import { supabase } from '../../lib/supabase'; // Import supabase client
 
 import socket from '../../services/socket';
 
@@ -15,6 +16,7 @@ export default function DriverDashboard() {
 
   useEffect(() => {
     let locationInterval: any;
+    let rideSubscription: any;
 
     if (isOnline) {
       // Get initial location
@@ -49,13 +51,32 @@ export default function DriverDashboard() {
         });
       }, 10000);
 
-      // Listen for new ride requests
+      // Listen for new ride requests via Socket.io
       socket.on('new_ride_request', (ride) => {
-        console.log('Received new ride request:', ride);
+        console.log('Received new ride request via Socket:', ride);
         setCurrentRequest(ride);
         setRequestType(ride.serviceType);
         setShowRequest(true);
       });
+
+      // Listen for new ride requests via Supabase Realtime
+      rideSubscription = supabase
+        .channel('rides_channel')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'rides', filter: 'status=eq.searching' }, (payload) => {
+          console.log('Received new ride request via Supabase:', payload.new);
+          // Map DB columns back to the frontend expected format
+          const ride = {
+            id: payload.new.id,
+            serviceType: payload.new.service_type,
+            pickup: payload.new.pickup_address,
+            destination: payload.new.destination_address,
+            suggestedPrice: payload.new.suggested_price
+          };
+          setCurrentRequest(ride);
+          setRequestType(ride.serviceType as any);
+          setShowRequest(true);
+        })
+        .subscribe();
 
       // Listen for active rides list (for drivers who just joined)
       socket.on('active_rides_list', (rides) => {
@@ -70,6 +91,7 @@ export default function DriverDashboard() {
       socket.off('new_ride_request');
       socket.off('active_rides_list');
       clearInterval(locationInterval);
+      if (rideSubscription) supabase.removeChannel(rideSubscription);
       setShowRequest(false);
     }
 
@@ -77,6 +99,7 @@ export default function DriverDashboard() {
       socket.off('new_ride_request');
       socket.off('active_rides_list');
       clearInterval(locationInterval);
+      if (rideSubscription) supabase.removeChannel(rideSubscription);
     };
   }, [isOnline]);
 
